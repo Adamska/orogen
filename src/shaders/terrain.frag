@@ -1,0 +1,108 @@
+#include <common>
+#include <packing>
+#include <orogen_atmosphere>
+#include <orogen_field>
+#include <orogen_noise>
+#include <orogen_shading>
+
+uniform float uTime;
+uniform float uSnowLine;
+uniform vec3 uSandColor;
+uniform vec3 uGrassColor;
+uniform vec3 uRockColor;
+uniform vec3 uSnowColor;
+uniform vec3 uWaterDeep;
+
+varying vec3 vWorldPosition;
+
+float triplanarGrain(vec3 point, vec3 normal) {
+  vec3 weights = pow(abs(normal), vec3(4.0));
+  weights /= weights.x + weights.y + weights.z;
+  return valueNoise(point.zy) * weights.x + valueNoise(point.xz) * weights.y +
+    valueNoise(point.xy) * weights.z;
+}
+
+void main() {
+  vec2 planar = vWorldPosition.xz;
+  vec4 field = sampleField(planar);
+  vec3 macroNormal = fieldNormal(field);
+  vec3 view = cameraPosition - vWorldPosition;
+  float range = length(view);
+  view /= range;
+  float detail = 1.0 - smoothstep(140.0, 1300.0, range);
+
+  float closeness = 1.0 - smoothstep(60.0, 620.0, range);
+  vec3 relief = fbmDerivative(planar * 0.045);
+  vec3 crisp = fbmDerivative(planar * 0.23 + 41.0);
+  vec3 fine = valueNoiseDerivative(planar * 0.5);
+  float patches = valueNoise(planar * 0.011 + 31.0);
+  float breakup = relief.x * 2.2 - 1.0;
+
+  float height = field.r * uAmplitude;
+  float shore = height - uWaterLevel * uAmplitude;
+  float altitude = field.r + breakup * 0.045;
+  float steepness = 1.0 - macroNormal.y;
+
+  vec2 bump = relief.yz * 0.26 + crisp.yz * 0.3 * closeness;
+  vec3 normal = normalize(
+    macroNormal - vec3(bump.x, 0.0, bump.y) * detail * (0.3 + steepness * 1.6)
+  );
+  float slope = mix(macroNormal.y, normal.y, 0.35);
+
+  float strataWarp = relief.x * 2.4 + patches * 5.0;
+  float strata = valueNoise(vec2(height * 0.085 + strataWarp, 3.7));
+  float seams = valueNoise(vec2(height * 0.52 + strataWarp * 1.7, 9.1));
+  float grain = triplanarGrain(vWorldPosition * 0.55, macroNormal);
+  float crags = triplanarGrain(vWorldPosition * 0.085, macroNormal);
+  vec3 rock = uRockColor * mix(0.74, 1.12, strata * 0.6 + seams * 0.4) * mix(0.8, 1.16, grain) *
+    mix(0.72, 1.12, crags);
+  rock = mix(rock, rock * vec3(1.14, 0.98, 0.86), patches * 0.6);
+  float fissures = smoothstep(0.0, 0.16, abs(crisp.x - 0.47));
+  rock *= mix(1.0, mix(0.62, 1.0, fissures), closeness);
+
+  vec3 grass = uGrassColor * mix(0.68, 1.22, valueNoise(planar * 0.12 + 17.0));
+  grass = mix(grass, uGrassColor * vec3(1.3, 1.12, 0.66), smoothstep(0.45, 0.8, patches) * 0.5);
+  float tundra = smoothstep(uSnowLine - 0.36, uSnowLine - 0.08, altitude);
+  grass = mix(grass, mix(uGrassColor, uRockColor, 0.6) * vec3(1.12, 1.0, 0.82), tundra * 0.85);
+
+  float wetness = 1.0 - smoothstep(0.0, 2.8, shore);
+  vec3 sand = uSandColor * mix(0.84, 1.1, fine.x) * mix(1.0, 0.5, wetness);
+  vec3 seabed = mix(uSandColor * 0.5, uWaterDeep * 1.5, 0.5) * mix(0.75, 1.15, relief.x);
+  vec3 snow = uSnowColor * mix(0.93, 1.0, fine.x);
+
+  float rockMask = 1.0 - smoothstep(0.64, 0.8, slope + breakup * 0.05);
+  rockMask = max(rockMask, smoothstep(uSnowLine - 0.18, uSnowLine, altitude) * 0.9);
+  float sandMask = (1.0 - smoothstep(2.5, 9.0, shore + breakup * 2.5)) * smoothstep(0.6, 0.86, slope);
+  float drift = altitude + (crisp.x - 0.47) * 0.07;
+  float snowMask = smoothstep(uSnowLine - 0.012, uSnowLine + 0.026, drift) *
+    smoothstep(0.5, 0.64, slope + (crisp.x - 0.47) * 0.12);
+  float seabedMask = smoothstep(-3.0, -18.0, shore) * smoothstep(0.35, 0.8, slope);
+
+  vec3 albedo = mix(grass, rock, rockMask);
+  albedo = mix(albedo, sand, sandMask);
+  albedo = mix(albedo, snow, snowMask);
+  albedo = mix(albedo, seabed, seabedMask);
+
+  float occlusion = clamp(1.0 - field.a * uAmplitude * 0.05, 0.28, 1.0);
+  float shadow = sunShadow();
+  float diffuse = max(dot(normal, uSunDirection), 0.0);
+  vec3 lit = albedo * (uSunColor * diffuse * shadow + ambientLight(normal) * occlusion);
+
+  vec3 halfVector = normalize(view + uSunDirection);
+  float highlight = max(dot(normal, halfVector), 0.0);
+  float wetSheen = pow(highlight, 90.0) * wetness * sandMask * 1.2;
+  float sparkle = step(0.986, hash21(floor(planar * 2.5))) * pow(highlight, 20.0) * snowMask *
+    detail * 3.0;
+  lit += uSunColor * (wetSheen + sparkle) * shadow;
+
+  float depth = max(-shore, 0.0);
+  vec2 causticPoint = planar * 0.17;
+  float caustic = 1.0 - abs(
+    valueNoise(causticPoint + uTime * 0.32) - valueNoise(causticPoint * 1.35 - uTime * 0.26 + 9.0)
+  ) * 2.4;
+  caustic = pow(clamp(caustic, 0.0, 1.0), 9.0);
+  lit += albedo * uSunColor * caustic * shadow * detail * smoothstep(0.0, 2.0, depth) *
+    exp(-depth * 0.07) * max(uSunDirection.y, 0.0) * 1.6;
+
+  gl_FragColor = vec4(applyAtmosphere(lit, vWorldPosition), 1.0);
+}
