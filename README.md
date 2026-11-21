@@ -2,7 +2,7 @@
 
 Orogen is an interactive 3D procedural terrain and biome engine. It raises seeded mountain ranges in the browser, lights them with a custom atmospheric scattering model, and lets you reshape the whole world from a single sentence through an AI terraformer.
 
-![Orogen rendering the default Nordic fjord world at golden hour](docs/preview.jpg)
+![Orogen rendering the default Nordic fjord world at golden hour](https://github.com/user-attachments/assets/b6da8b3a-2ff7-4fe4-9ecf-3f35a33ea989)
 
 ## Highlights
 
