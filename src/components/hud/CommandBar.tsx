@@ -9,8 +9,8 @@ import { ArrowIcon, SparkIcon } from './icons';
 
 const MIN_PROMPT_LENGTH = 2;
 const subscribeToNothing = () => () => undefined;
-const readShortcutLabel = () => (/Mac|iPhone|iPad/.test(navigator.userAgent) ? 'Cmd K' : 'Ctrl K');
-const readServerShortcutLabel = () => 'Ctrl K';
+const readHasCommandKey = () => /Mac/.test(navigator.userAgent);
+const readServerHasCommandKey = () => false;
 
 export function CommandBar() {
   const open = useWorldStore((state) => state.commandOpen);
@@ -19,16 +19,16 @@ export function CommandBar() {
   const direct = useWorldStore((state) => state.direct);
   const applyPreset = useWorldStore((state) => state.applyPreset);
   const [prompt, setPrompt] = useState('');
-  const shortcutLabel = useSyncExternalStore(
+  const hasCommandKey = useSyncExternalStore(
     subscribeToNothing,
-    readShortcutLabel,
-    readServerShortcutLabel,
+    readHasCommandKey,
+    readServerHasCommandKey,
   );
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+      if (event.metaKey && event.key.toLowerCase() === 'k') {
         event.preventDefault();
         setOpen(!useWorldStore.getState().commandOpen);
       } else if (event.key === 'Escape') {
@@ -62,13 +62,17 @@ export function CommandBar() {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="flex items-center gap-3 rounded-full py-2.5 pl-4 pr-4 text-sm text-white/80 sm:pr-3"
+          className={`flex items-center gap-3 rounded-full py-2.5 pl-4 pr-4 text-sm text-white/80 ${
+            hasCommandKey ? 'sm:pr-3' : ''
+          }`}
         >
           <SparkIcon />
           Describe a world to terraform
-          <kbd className="hidden rounded-md border border-white/20 bg-white/10 px-1.5 py-0.5 font-mono text-[10px] text-white/70 sm:inline">
-            {shortcutLabel}
-          </kbd>
+          {hasCommandKey && (
+            <kbd className="hidden rounded-md border border-white/20 bg-white/10 px-1.5 py-0.5 font-mono text-[10px] text-white/70 sm:inline">
+              Cmd K
+            </kbd>
+          )}
         </button>
       </GlassPanel>
     );

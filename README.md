@@ -16,7 +16,7 @@ Orogen is an interactive 3D procedural terrain and biome engine. It raises seede
 
 ## AI terraformer
 
-Press `Cmd K` or `Ctrl K`, or use the pill at the bottom of the screen, and describe a world:
+Press `Cmd K`, or use the pill at the bottom of the screen, and describe a world:
 
 - Volcanic obsidian archipelago at twilight with crimson horizon
 - Misty emerald alpine valley at dawn
