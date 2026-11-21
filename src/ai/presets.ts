@@ -53,10 +53,10 @@ export const TERRAFORM_PRESETS: readonly TerraformPreset[] = [
       snowLine: 0.55,
       foliageDensity: 0.95,
       palette: {
-        sand: '#9a917c', grass: '#2f8a4a', rock: '#6b6f73',
+        sand: '#9a917c', grass: '#2c7d3f', rock: '#5d6167',
         snow: '#f7fafc', waterShallow: '#4fb7a8', waterDeep: '#0f4a55',
       },
-      atmosphere: { sunElevation: 11, sunAzimuth: 96, skyZenith: '#6f9fd8', skyHorizon: '#f3cdb4', fogDensity: 0.62 },
+      atmosphere: { sunElevation: 13, sunAzimuth: 28, skyZenith: '#5f8fd0', skyHorizon: '#f3c7a8', fogDensity: 0.46 },
     },
   },
   {
@@ -113,7 +113,7 @@ export const TERRAFORM_PRESETS: readonly TerraformPreset[] = [
       snowLine: 1.2,
       foliageDensity: 0.85,
       palette: {
-        sand: '#f0dfb4', grass: '#3fa348', rock: '#7d7461',
+        sand: '#d9c391', grass: '#3f9a45', rock: '#7d7461',
         snow: '#ffffff', waterShallow: '#35e0cf', waterDeep: '#0a4f8a',
       },
       atmosphere: { sunElevation: 64, sunAzimuth: 160, skyZenith: '#1f6fd0', skyHorizon: '#bfe3f5', fogDensity: 0.12 },

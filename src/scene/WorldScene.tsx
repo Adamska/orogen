@@ -9,7 +9,8 @@ import { BiomeScatter } from './BiomeScatter';
 import { PostProcessingStack } from './PostProcessingStack';
 import { TerrainWorld } from './TerrainWorld';
 import { useTerrainSurface } from './useTerrainSurface';
-import { stepWorld, syncWorldTargets, worldRuntime } from './worldRuntime';
+import { frameStats } from './frameStats';
+import { stepWorld, syncWorldTargets } from './worldRuntime';
 
 const ORBIT_TARGET: [number, number, number] = [0, 58, 0];
 
@@ -26,8 +27,9 @@ export function WorldScene() {
   }, []);
 
   useFrame((_, delta) => {
-    worldRuntime.triangles = info.render.triangles;
-    worldRuntime.drawCalls = info.render.calls;
+    frameStats.frameCount += 1;
+    frameStats.triangles = info.render.triangles;
+    frameStats.drawCalls = info.render.calls;
     info.reset();
     stepWorld(delta);
   }, -1);

@@ -5,7 +5,7 @@ import { worldUniforms } from './worldUniforms';
 const TRANSITION_RATE = 2.6;
 const MORPH_SECONDS = 1.9;
 const FOLIAGE_RATE = 5.5;
-const SUN_INTENSITY = 1.75;
+const SUN_INTENSITY = 1.7;
 const LOW_SUN = new Color(1.0, 0.54, 0.26);
 const HIGH_SUN = new Color(1.0, 0.95, 0.86);
 
@@ -41,9 +41,6 @@ export const worldRuntime = {
   rebuildPending: false,
   sunElevation: 45,
   sunAzimuth: 0,
-  frameCount: 0,
-  triangles: 0,
-  drawCalls: 0,
 };
 
 const horizonTint = new Color();
@@ -81,7 +78,7 @@ function updateSun(): void {
   const peak = Math.max(horizon.r, horizon.g, horizon.b, 1e-3);
   horizonTint.copy(horizon).multiplyScalar(1 / peak);
   const intensity =
-    SUN_INTENSITY * MathUtils.smoothstep(height, -0.07, 0.1) * MathUtils.lerp(0.78, 1, clarity);
+    SUN_INTENSITY * MathUtils.smoothstep(height, -0.07, 0.1) * MathUtils.lerp(0.95, 0.86, clarity);
   worldUniforms.uSunColor.value
     .copy(LOW_SUN)
     .lerp(HIGH_SUN, clarity)
@@ -93,7 +90,6 @@ export function stepWorld(delta: number): void {
   const step = Math.min(delta, 0.1);
   const blend = worldRuntime.initialized ? 1 - Math.exp(-step * TRANSITION_RATE) : 1;
   worldRuntime.initialized = true;
-  worldRuntime.frameCount += 1;
   worldUniforms.uTime.value += step;
 
   const lerp = MathUtils.lerp;

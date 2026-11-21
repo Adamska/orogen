@@ -4,8 +4,8 @@ uniform vec3 uSkyZenith;
 uniform vec3 uSkyHorizon;
 uniform float uFogDensity;
 
-const float FOG_HEIGHT_FALLOFF = 0.0052;
-const float FOG_BASE_DENSITY = 0.0019;
+const float FOG_HEIGHT_FALLOFF = 0.011;
+const float FOG_BASE_DENSITY = 0.0034;
 const float HORIZON_FADE_START = 2600.0;
 const float HORIZON_FADE_END = 7800.0;
 
