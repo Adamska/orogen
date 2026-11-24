@@ -3,6 +3,9 @@ export const TERRAIN_SEGMENTS = 512;
 export const HORIZON_RADIUS = 9000;
 export const DEFAULT_SEED = 1837;
 
+export const VEGETATION_KINDS = ['conifer', 'broadleaf', 'palm', 'shrub'] as const;
+export type VegetationKind = (typeof VEGETATION_KINDS)[number];
+
 export interface TerrainShape {
   amplitude: number;
   ridgeSharpness: number;
@@ -13,6 +16,7 @@ export interface TerrainShape {
 export interface BiomePalette {
   sand: string;
   grass: string;
+  foliage: string;
   rock: string;
   snow: string;
   waterShallow: string;
@@ -34,6 +38,7 @@ export interface WorldConfig {
   waterLevel: number;
   snowLine: number;
   foliageDensity: number;
+  vegetation: VegetationKind;
   palette: BiomePalette;
   atmosphere: AtmosphereState;
 }
@@ -63,9 +68,11 @@ export const DEFAULT_WORLD: WorldConfig = {
   waterLevel: 0.21,
   snowLine: 0.6,
   foliageDensity: 0.72,
+  vegetation: 'conifer',
   palette: {
     sand: '#8f7d66',
     grass: '#50692f',
+    foliage: '#3d5a2e',
     rock: '#625d5c',
     snow: '#f3f6fb',
     waterShallow: '#2e9596',

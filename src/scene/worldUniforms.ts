@@ -27,6 +27,7 @@ export const worldUniforms = {
   uFoliageScale: uniform(1),
   uSandColor: uniform(new Color()),
   uGrassColor: uniform(new Color()),
+  uFoliageColor: uniform(new Color()),
   uRockColor: uniform(new Color()),
   uSnowColor: uniform(new Color()),
   uWaterShallow: uniform(new Color()),

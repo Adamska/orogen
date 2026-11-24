@@ -16,6 +16,7 @@ const MOON_TILT = new Vector3(0.2, 0, 0.35);
 const PALETTE_UNIFORMS = {
   sand: worldUniforms.uSandColor,
   grass: worldUniforms.uGrassColor,
+  foliage: worldUniforms.uFoliageColor,
   rock: worldUniforms.uRockColor,
   snow: worldUniforms.uSnowColor,
   waterShallow: worldUniforms.uWaterShallow,

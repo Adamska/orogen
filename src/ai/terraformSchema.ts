@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { WORLD_LIMITS, type NumericRange, type WorldConfig } from '@/engine/worldConfig';
+import { VEGETATION_KINDS, WORLD_LIMITS, type NumericRange, type WorldConfig } from '@/engine/worldConfig';
 
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 const NAME_LIMIT = 48;
@@ -25,10 +25,14 @@ export const TerraformDirectiveSchema = z.object({
   }),
   waterLevel: ranged(WORLD_LIMITS.waterLevel, 'Sea level as a fraction of relief. 0 is a dry world, 0.4 is an archipelago.'),
   snowLine: ranged(WORLD_LIMITS.snowLine, 'Relative altitude where snow begins. Use 1.2 for no snow at all.'),
-  foliageDensity: ranged(WORLD_LIMITS.foliageDensity, 'Conifer forest coverage. 0 is barren, 1 is dense woodland.'),
+  foliageDensity: ranged(WORLD_LIMITS.foliageDensity, 'Tree coverage. 0 is barren, 1 is dense woodland.'),
+  vegetation: z
+    .enum(VEGETATION_KINDS)
+    .describe('Dominant plant form: conifer for boreal and alpine, broadleaf for temperate, palm for tropical coasts, shrub for arid scrub.'),
   palette: z.object({
     sand: color('Shoreline and beach sediment.'),
     grass: color('Lowland ground cover such as moss, grass, lichen or regolith.'),
+    foliage: color('Tree canopy leaves or needles.'),
     rock: color('Cliff and scree bedrock.'),
     snow: color('High altitude snow or frost.'),
     waterShallow: color('Shallow water over the shelf.'),
@@ -79,6 +83,7 @@ export function sanitizeDirective(draft: TerraformDirective): TerraformDirective
     waterLevel: clamp(draft.waterLevel, WORLD_LIMITS.waterLevel),
     snowLine: clamp(draft.snowLine, WORLD_LIMITS.snowLine),
     foliageDensity: clamp(draft.foliageDensity, WORLD_LIMITS.foliageDensity),
+    vegetation: draft.vegetation,
     palette: { ...draft.palette },
     atmosphere: {
       ...draft.atmosphere,

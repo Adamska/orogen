@@ -35,7 +35,14 @@ export function decodeWorldLink(hash: string): WorldLink | null {
     if (typeof payload !== 'object' || payload === null) return null;
     const { seed, world } = payload as { seed?: unknown; world?: unknown };
     if (typeof seed !== 'number' || !Number.isInteger(seed) || seed < 0 || seed >= SEED_LIMIT) return null;
-    const merged = { ...DEFAULT_WORLD, ...(typeof world === 'object' ? world : {}) };
+    const draft = (typeof world === 'object' && world !== null ? world : {}) as Partial<WorldConfig>;
+    const merged = {
+      ...DEFAULT_WORLD,
+      ...draft,
+      terrain: { ...DEFAULT_WORLD.terrain, ...draft.terrain },
+      palette: { ...DEFAULT_WORLD.palette, ...draft.palette },
+      atmosphere: { ...DEFAULT_WORLD.atmosphere, ...draft.atmosphere },
+    };
     const parsed = TerraformDirectiveSchema.safeParse(merged);
     return parsed.success ? { seed, world: parsed.data } : null;
   } catch {

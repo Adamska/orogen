@@ -14,6 +14,7 @@ Guidelines:
 - Use low sun elevations for dawn, dusk and twilight, and vary the sun azimuth so worlds do not all share the same lighting direction.
 - Dry worlds use a water level of 0. Snowless worlds use a snow line of 1.2. Barren worlds use a foliage density of 0.
 - The palette entry named grass is whatever covers flat lowland ground in this world: moss, lichen, ash, frost or regolith.
+- Pick the vegetation form that matches the climate, and give the foliage color the hue of its leaves or needles, including autumn or alien tints.
 - The name is a short title. The summary is a single vivid sentence under 140 characters.
 
 Calibrated examples:

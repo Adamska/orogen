@@ -3,7 +3,7 @@
 #include <orogen_atmosphere>
 #include <orogen_shading>
 
-uniform vec3 uGrassColor;
+uniform vec3 uFoliageColor;
 uniform vec3 uRockColor;
 
 varying vec3 vWorldPosition;
@@ -16,7 +16,7 @@ void main() {
   float shadow = sunShadow();
 
   #ifdef SCATTER_SWAY
-    vec3 canopy = mix(uGrassColor * vec3(0.4, 0.5, 0.42), uGrassColor * vec3(0.72, 0.9, 0.5), vShade.y);
+    vec3 canopy = mix(uFoliageColor * vec3(0.55, 0.62, 0.58), uFoliageColor * vec3(1.05, 1.15, 0.8), vShade.y);
     canopy *= mix(0.5, 1.15, vShade.z);
     vec3 albedo = mix(vec3(0.13, 0.09, 0.065), canopy, vShade.x);
     normal = normalize(mix(normal, vec3(0.0, 1.0, 0.0), 0.3));

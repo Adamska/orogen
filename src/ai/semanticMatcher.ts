@@ -1,4 +1,5 @@
 import { hashString } from '@/engine/random';
+import type { VegetationKind } from '@/engine/worldConfig';
 import { TERRAFORM_PRESETS, type TerraformPreset } from './presets';
 import { sanitizeDirective, type TerraformDirective, type TerraformResponse } from './terraformSchema';
 
@@ -35,7 +36,18 @@ function horizonTint(tint: string): Modifier {
   };
 }
 
+function plants(kind: VegetationKind): Modifier {
+  return (draft) => {
+    draft.vegetation = kind;
+  };
+}
+
 const LEXICON: readonly LexiconEntry[] = [
+  { terms: ['pine', 'taiga', 'boreal', 'spruce', 'fir', 'conifer'], apply: plants('conifer') },
+  { terms: ['oak', 'autumn', 'deciduous', 'temperate', 'woodland', 'maple', 'birch'], apply: plants('broadleaf') },
+  { terms: ['palm', 'tropical', 'jungle', 'coconut', 'paradise'], apply: plants('palm') },
+  { terms: ['scrub', 'savanna', 'steppe', 'cactus', 'chaparral', 'outback'], apply: plants('shrub') },
+  { terms: ['autumn', 'fall'], apply: (draft) => { draft.palette.foliage = blendHex(draft.palette.foliage, '#b8642a', 0.55); } },
   { terms: ['dawn', 'sunrise', 'morning', 'daybreak'], apply: sky(7, 98, '#6a94d2', '#f4bfa6') },
   { terms: ['golden', 'sunset', 'dusk', 'evening'], apply: sky(7, 288, '#3566a6', '#f2a765') },
   { terms: ['twilight', 'night', 'midnight', 'moonlit', 'nocturnal'], apply: sky(1.5, 262, '#141a3c', '#5a4a78', 0.6) },
@@ -44,7 +56,7 @@ const LEXICON: readonly LexiconEntry[] = [
   { terms: ['amber', 'orange', 'copper', 'ochre'], apply: horizonTint('#e39a42') },
   { terms: ['violet', 'purple', 'magenta', 'lavender'], apply: horizonTint('#8a55c8') },
   { terms: ['pink', 'rose', 'blush', 'pastel'], apply: horizonTint('#f0a3b8') },
-  { terms: ['emerald', 'verdant', 'green'], apply: (draft) => { draft.palette.grass = blendHex(draft.palette.grass, '#2f8f4e', 0.7); } },
+  { terms: ['emerald', 'verdant', 'green'], apply: (draft) => { draft.palette.grass = blendHex(draft.palette.grass, '#2f8f4e', 0.7); draft.palette.foliage = blendHex(draft.palette.foliage, '#2b7a3c', 0.6); } },
   { terms: ['turquoise', 'teal', 'azure', 'cyan'], apply: (draft) => { draft.palette.waterShallow = blendHex(draft.palette.waterShallow, '#2fd0c8', 0.7); } },
   { terms: ['mist', 'misty', 'fog', 'foggy', 'haze', 'hazy', 'dusty', 'smoky', 'storm'], apply: (draft) => { draft.atmosphere.fogDensity += 0.3; } },
   { terms: ['clear', 'crisp', 'pristine'], apply: (draft) => { draft.atmosphere.fogDensity = 0.08; } },

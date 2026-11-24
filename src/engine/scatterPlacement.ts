@@ -2,6 +2,7 @@ import { Euler, Matrix4, Quaternion, Vector3 } from 'three';
 import { sampleField, type ElevationField, type FieldSample } from './elevationField';
 import { createNoise2D, fbm, smoothstep } from './noise';
 import { deriveSeed, mulberry32, type RandomSource } from './random';
+import type { VegetationKind } from './worldConfig';
 
 export const TREE_CAPACITY = 6500;
 export const BOULDER_CAPACITY = 1100;
@@ -20,7 +21,23 @@ export interface BiomeLayout {
 export interface ScatterRules {
   amplitude: number;
   snowLine: number;
+  vegetation: VegetationKind;
 }
+
+interface TreeForm {
+  readonly height: readonly [number, number];
+  readonly girth: readonly [number, number];
+  readonly minUpness: number;
+  readonly ceiling: number;
+  readonly tilt: number;
+}
+
+const TREE_FORMS: Record<VegetationKind, TreeForm> = {
+  conifer: { height: [9, 17], girth: [0.82, 1.12], minUpness: 0.84, ceiling: 1, tilt: 0.08 },
+  broadleaf: { height: [8, 13], girth: [0.95, 1.3], minUpness: 0.86, ceiling: 0.82, tilt: 0.1 },
+  palm: { height: [10, 16], girth: [0.85, 1.05], minUpness: 0.8, ceiling: 0.9, tilt: 0.24 },
+  shrub: { height: [2.4, 4.6], girth: [1.4, 2.2], minUpness: 0.7, ceiling: 1, tilt: 0.12 },
+};
 
 interface Candidate {
   x: number;
@@ -83,19 +100,20 @@ function populate(
 
 export function scatterBiome(field: ElevationField, rules: ScatterRules): BiomeLayout {
   const groves = createNoise2D(deriveSeed(field.params.seed, 101));
-  const treeLine = rules.snowLine - 0.1;
+  const form = TREE_FORMS[rules.vegetation];
+  const treeLine = Math.min(rules.snowLine - 0.1, form.ceiling);
   const scale = new Vector3();
 
   const trees = populate(field, rules, TREE_CAPACITY, 131, (candidate, random) => {
     if (candidate.elevation < 0.02 || candidate.elevation > treeLine) return null;
-    if (candidate.upness < 0.84 || candidate.exposure > MAX_TREE_EXPOSURE) return null;
+    if (candidate.upness < form.minUpness || candidate.exposure > MAX_TREE_EXPOSURE) return null;
     const grove = fbm(groves, candidate.x * 0.006, candidate.z * 0.006, 3);
     if (grove < random() * 0.4 - 0.15) return null;
     const thinning = 1 - smoothstep(treeLine - 0.22, treeLine, candidate.elevation);
     if (random() > 0.2 + thinning * 0.8) return null;
-    const height = (9 + random() * 8) * (0.7 + thinning * 0.3);
-    const girth = height * (0.82 + random() * 0.3);
-    return { scale: scale.set(girth, height, girth), tilt: 0.08, sink: 0.4 };
+    const height = (form.height[0] + random() * (form.height[1] - form.height[0])) * (0.7 + thinning * 0.3);
+    const girth = height * (form.girth[0] + random() * (form.girth[1] - form.girth[0]));
+    return { scale: scale.set(girth, height, girth), tilt: form.tilt, sink: 0.4 };
   });
 
   const boulders = populate(field, rules, BOULDER_CAPACITY, 151, (candidate, random) => {
