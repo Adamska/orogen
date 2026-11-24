@@ -4,6 +4,8 @@
 
 uniform float uTime;
 
+#include <orogen_clouds>
+
 varying vec3 vDirection;
 
 float cirrus(vec3 direction) {
@@ -46,10 +48,15 @@ void main() {
     uSunColor * (0.34 + forward * 1.8);
   color = mix(color, cloudColor, cloud * 0.7);
 
-  color += sunDisc(direction) * (1.0 - cloud * 0.6);
+  vec3 cloudAmbient = (uSkyHorizon * 0.5 + uSkyZenith * 0.5) * mix(0.05, 0.9, daylightFactor());
+  cloudAmbient = mix(cloudAmbient, vec3(dot(cloudAmbient, vec3(0.33))), 0.45) + vec3(0.01, 0.015, 0.03) * uNight;
+  vec4 cumulus = raymarchClouds(direction, cloudAmbient);
+
+  color += sunDisc(direction) * (1.0 - cloud * 0.6) * cumulus.a;
   float aboveHorizon = smoothstep(0.0, 0.12, direction.y);
   color += vec3(0.85, 0.9, 1.0) * starField(direction) * uNight * aboveHorizon * (1.0 - cloud);
   color += moonDisc(direction) * aboveHorizon * (1.0 - cloud * 0.8);
+  color = color * cumulus.a + cumulus.rgb;
   color *= 1.0 + (hash21(gl_FragCoord.xy) - 0.5) * 0.018;
   gl_FragColor = vec4(color, 1.0);
 }

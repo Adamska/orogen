@@ -10,6 +10,7 @@ const WEATHER_RATE = 0.7;
 const OVERCAST = { clear: 0, rain: 0.85, snow: 0.6 } as const;
 const SNOWFALL_DESCENT = 0.16;
 const OVERCAST_HAZE = 0.28;
+const CLEAR_CLOUD_COVER = 0.42;
 const SUN_INTENSITY = 1.7;
 const LOW_SUN = new Color(1.0, 0.54, 0.26);
 const HIGH_SUN = new Color(1.0, 0.95, 0.86);
@@ -136,6 +137,7 @@ export function stepWorld(delta: number): void {
   worldUniforms.uRain.value = lerp(worldUniforms.uRain.value, target.rain, weatherBlend);
   worldUniforms.uSnowfall.value = lerp(worldUniforms.uSnowfall.value, target.snowfall, weatherBlend);
   worldUniforms.uOvercast.value = lerp(worldUniforms.uOvercast.value, target.overcast, weatherBlend);
+  worldUniforms.uCloudCover.value = CLEAR_CLOUD_COVER + worldUniforms.uOvercast.value * (1 - CLEAR_CLOUD_COVER);
   const snowLine = target.snowLine - worldUniforms.uSnowfall.value * SNOWFALL_DESCENT;
   const fogDensity = target.fogDensity + worldUniforms.uOvercast.value * OVERCAST_HAZE;
   worldUniforms.uSnowLine.value = lerp(worldUniforms.uSnowLine.value, snowLine, blend);

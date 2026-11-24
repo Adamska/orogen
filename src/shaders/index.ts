@@ -1,4 +1,5 @@
 import atmosphereChunk from './chunks/atmosphere.glsl';
+import cloudsChunk from './chunks/clouds.glsl';
 import fieldChunk from './chunks/field.glsl';
 import noiseChunk from './chunks/noise.glsl';
 import shadingChunk from './chunks/shading.glsl';
@@ -17,6 +18,7 @@ import waterVert from './water.vert';
 
 const CHUNKS: Readonly<Record<string, string>> = {
   atmosphere: atmosphereChunk,
+  clouds: cloudsChunk,
   field: fieldChunk,
   noise: noiseChunk,
   shading: shadingChunk,

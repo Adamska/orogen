@@ -7,14 +7,15 @@ export interface QualityProfile {
   readonly shadowMapSize: number;
   readonly foliageScale: number;
   readonly multisampling: number;
+  readonly cloudSteps: number;
 }
 
 export const QUALITY_TIERS: readonly QualityTier[] = ['low', 'medium', 'high'];
 
 export const QUALITY_PROFILES: Record<QualityTier, QualityProfile> = {
-  low: { maxPixelRatio: 1, shadowMapSize: 1024, foliageScale: 0.45, multisampling: 0 },
-  medium: { maxPixelRatio: 1.25, shadowMapSize: 2048, foliageScale: 0.72, multisampling: 2 },
-  high: { maxPixelRatio: 1.75, shadowMapSize: 4096, foliageScale: 1, multisampling: 4 },
+  low: { maxPixelRatio: 1, shadowMapSize: 1024, foliageScale: 0.45, multisampling: 0, cloudSteps: 6 },
+  medium: { maxPixelRatio: 1.25, shadowMapSize: 2048, foliageScale: 0.72, multisampling: 2, cloudSteps: 10 },
+  high: { maxPixelRatio: 1.75, shadowMapSize: 4096, foliageScale: 1, multisampling: 4, cloudSteps: 14 },
 };
 
 interface QualityStore {

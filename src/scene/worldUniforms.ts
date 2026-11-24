@@ -17,6 +17,8 @@ export const worldUniforms = {
   uSnowfall: uniform(0),
   uOvercast: uniform(0),
   uVolcanism: uniform(0),
+  uCloudCover: uniform(0.4),
+  uCloudSteps: uniform(14),
   uSkyZenith: uniform(new Color()),
   uSkyHorizon: uniform(new Color()),
   uFogDensity: uniform(0),
