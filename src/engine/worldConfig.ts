@@ -40,6 +40,7 @@ export interface WorldConfig {
   waterLevel: number;
   snowLine: number;
   foliageDensity: number;
+  volcanism: number;
   vegetation: VegetationKind;
   weather: WeatherKind;
   palette: BiomePalette;
@@ -59,6 +60,7 @@ export const WORLD_LIMITS = {
   waterLevel: { min: 0, max: 0.6 },
   snowLine: { min: 0.3, max: 1.2 },
   foliageDensity: { min: 0, max: 1 },
+  volcanism: { min: 0, max: 1 },
   sunElevation: { min: -4, max: 85 },
   sunAzimuth: { min: 0, max: 360 },
   fogDensity: { min: 0, max: 1 },
@@ -71,6 +73,7 @@ export const DEFAULT_WORLD: WorldConfig = {
   waterLevel: 0.21,
   snowLine: 0.6,
   foliageDensity: 0.72,
+  volcanism: 0,
   vegetation: 'conifer',
   weather: 'clear',
   palette: {

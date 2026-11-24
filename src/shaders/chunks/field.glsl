@@ -6,9 +6,13 @@ uniform float uWaterLevel;
 uniform float uTerrainSize;
 uniform float uFieldResolution;
 
-vec4 sampleField(vec2 planar) {
+vec2 fieldUv(vec2 planar) {
   vec2 uv = (planar / uTerrainSize + 0.5) * (uFieldResolution - 1.0) + 0.5;
-  uv = clamp(uv / uFieldResolution, 0.0, 1.0);
+  return clamp(uv / uFieldResolution, 0.0, 1.0);
+}
+
+vec4 sampleField(vec2 planar) {
+  vec2 uv = fieldUv(planar);
   return mix(texture2D(uElevationFrom, uv), texture2D(uElevationTo, uv), uMorph);
 }
 

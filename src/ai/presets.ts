@@ -32,6 +32,7 @@ export const TERRAFORM_PRESETS: readonly TerraformPreset[] = [
       waterLevel: 0.36,
       snowLine: 1.2,
       foliageDensity: 0.1,
+      volcanism: 0.85,
       vegetation: 'palm',
       weather: 'clear',
       palette: {
@@ -54,6 +55,7 @@ export const TERRAFORM_PRESETS: readonly TerraformPreset[] = [
       waterLevel: 0.12,
       snowLine: 0.55,
       foliageDensity: 0.95,
+      volcanism: 0,
       vegetation: 'broadleaf',
       weather: 'clear',
       palette: {
@@ -76,6 +78,7 @@ export const TERRAFORM_PRESETS: readonly TerraformPreset[] = [
       waterLevel: 0,
       snowLine: 1.2,
       foliageDensity: 0,
+      volcanism: 0,
       vegetation: 'shrub',
       weather: 'clear',
       palette: {
@@ -98,6 +101,7 @@ export const TERRAFORM_PRESETS: readonly TerraformPreset[] = [
       waterLevel: 0.3,
       snowLine: 0.36,
       foliageDensity: 0,
+      volcanism: 0,
       vegetation: 'conifer',
       weather: 'snow',
       palette: {
@@ -120,6 +124,7 @@ export const TERRAFORM_PRESETS: readonly TerraformPreset[] = [
       waterLevel: 0.42,
       snowLine: 1.2,
       foliageDensity: 0.85,
+      volcanism: 0,
       vegetation: 'palm',
       weather: 'clear',
       palette: {

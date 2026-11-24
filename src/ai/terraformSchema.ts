@@ -26,6 +26,7 @@ export const TerraformDirectiveSchema = z.object({
   waterLevel: ranged(WORLD_LIMITS.waterLevel, 'Sea level as a fraction of relief. 0 is a dry world, 0.4 is an archipelago.'),
   snowLine: ranged(WORLD_LIMITS.snowLine, 'Relative altitude where snow begins. Use 1.2 for no snow at all.'),
   foliageDensity: ranged(WORLD_LIMITS.foliageDensity, 'Tree coverage. 0 is barren, 1 is dense woodland.'),
+  volcanism: ranged(WORLD_LIMITS.volcanism, 'Active lava. 0 is dormant, 0.5 shows glowing fissures, 1 floods valleys with molten rivers.'),
   vegetation: z
     .enum(VEGETATION_KINDS)
     .describe('Dominant plant form: conifer for boreal and alpine, broadleaf for temperate, palm for tropical coasts, shrub for arid scrub.'),
@@ -84,6 +85,7 @@ export function sanitizeDirective(draft: TerraformDirective): TerraformDirective
     waterLevel: clamp(draft.waterLevel, WORLD_LIMITS.waterLevel),
     snowLine: clamp(draft.snowLine, WORLD_LIMITS.snowLine),
     foliageDensity: clamp(draft.foliageDensity, WORLD_LIMITS.foliageDensity),
+    volcanism: clamp(draft.volcanism, WORLD_LIMITS.volcanism),
     vegetation: draft.vegetation,
     weather: draft.weather,
     palette: { ...draft.palette },

@@ -49,6 +49,7 @@ function precipitation(kind: WeatherKind): Modifier {
 }
 
 const LEXICON: readonly LexiconEntry[] = [
+  { terms: ['volcanic', 'volcano', 'lava', 'magma', 'molten', 'eruption', 'erupting', 'inferno'], apply: (draft) => { draft.volcanism = Math.max(draft.volcanism, 0.8); } },
   { terms: ['rain', 'rainy', 'storm', 'stormy', 'drizzle', 'monsoon', 'downpour', 'thunderstorm'], apply: precipitation('rain') },
   { terms: ['snowfall', 'snowing', 'blizzard', 'snowstorm', 'flurries'], apply: precipitation('snow') },
   { terms: ['pine', 'taiga', 'boreal', 'spruce', 'fir', 'conifer'], apply: plants('conifer') },

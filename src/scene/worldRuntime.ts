@@ -36,6 +36,7 @@ const target = {
   fogDensity: 0,
   rain: 0,
   snowfall: 0,
+  volcanism: 0,
   overcast: 0,
   sunElevation: 45,
   sunAzimuth: 0,
@@ -64,6 +65,7 @@ export function syncWorldTargets(world: WorldConfig): void {
   target.waterLevel = world.waterLevel;
   target.snowLine = world.snowLine;
   target.fogDensity = world.atmosphere.fogDensity;
+  target.volcanism = world.volcanism;
   target.rain = world.weather === 'rain' ? 1 : 0;
   target.snowfall = world.weather === 'snow' ? 1 : 0;
   target.overcast = OVERCAST[world.weather];
@@ -130,6 +132,7 @@ export function stepWorld(delta: number): void {
   worldUniforms.uAmplitude.value = lerp(worldUniforms.uAmplitude.value, target.amplitude, blend);
   worldUniforms.uWaterLevel.value = lerp(worldUniforms.uWaterLevel.value, target.waterLevel, blend);
   const weatherBlend = 1 - Math.exp(-step * WEATHER_RATE);
+  worldUniforms.uVolcanism.value = lerp(worldUniforms.uVolcanism.value, target.volcanism, blend);
   worldUniforms.uRain.value = lerp(worldUniforms.uRain.value, target.rain, weatherBlend);
   worldUniforms.uSnowfall.value = lerp(worldUniforms.uSnowfall.value, target.snowfall, weatherBlend);
   worldUniforms.uOvercast.value = lerp(worldUniforms.uOvercast.value, target.overcast, weatherBlend);
