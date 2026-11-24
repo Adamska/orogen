@@ -21,7 +21,7 @@ export function ToggleButton({ label, pressed, onToggle, tone = 'neutral', child
       aria-pressed={pressed}
       aria-label={label}
       title={label}
-      className={`flex items-center justify-center rounded-xl border px-3 py-2 transition-colors focus-visible:outline-2 focus-visible:outline-white/70 ${
+      className={`flex items-center justify-center rounded-xl border py-2 transition-colors focus-visible:outline-2 focus-visible:outline-white/70 ${
         pressed ? PRESSED_TONES[tone] : 'border-white/15 bg-white/5 text-white/50 hover:text-white'
       }`}
     >

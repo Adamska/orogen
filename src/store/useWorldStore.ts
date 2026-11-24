@@ -25,6 +25,7 @@ export interface WorldStore {
   autoOrbit: boolean;
   timeLapse: boolean;
   photoMode: boolean;
+  flightMode: boolean;
   captureToken: number;
   commandOpen: boolean;
   directing: boolean;
@@ -43,6 +44,7 @@ export interface WorldStore {
   setAutoOrbit: (autoOrbit: boolean) => void;
   toggleTimeLapse: () => void;
   setPhotoMode: (photoMode: boolean) => void;
+  setFlightMode: (flightMode: boolean) => void;
   requestCapture: () => void;
   setCommandOpen: (commandOpen: boolean) => void;
 }
@@ -56,6 +58,7 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
   autoOrbit: true,
   timeLapse: false,
   photoMode: false,
+  flightMode: false,
   captureToken: 0,
   commandOpen: false,
   directing: false,
@@ -114,6 +117,12 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
   setAutoOrbit: (autoOrbit) => set({ autoOrbit }),
   toggleTimeLapse: () => set((state) => ({ timeLapse: !state.timeLapse })),
   setPhotoMode: (photoMode) => set({ photoMode, commandOpen: false }),
+  setFlightMode: (flightMode) =>
+    set((state) => ({
+      flightMode,
+      commandOpen: false,
+      flightToken: flightMode ? state.flightToken : state.flightToken + 1,
+    })),
   requestCapture: () => set((state) => ({ captureToken: state.captureToken + 1 })),
   setCommandOpen: (commandOpen) => set({ commandOpen }),
 }));

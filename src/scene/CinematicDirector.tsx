@@ -22,7 +22,7 @@ function asOrbitRig(controls: unknown): OrbitRig | null {
     : null;
 }
 
-export function CinematicDirector() {
+export function CinematicDirector({ enabled }: { enabled: boolean }) {
   const camera = useThree((state) => state.camera);
   const rig = asOrbitRig(useThree((state) => state.controls));
   const flight = useRef<CameraFlight | null>(null);
@@ -51,6 +51,10 @@ export function CinematicDirector() {
 
   useFrame((_, delta) => {
     if (rig === null) return;
+    if (!enabled) {
+      flight.current = null;
+      return;
+    }
     if (requested.current) {
       requested.current = false;
       const origin = readPose(offset.current.copy(camera.position).sub(rig.target));

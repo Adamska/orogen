@@ -95,3 +95,10 @@ export const CloseIcon = (props: IconProps) => (
     <path d="m6 6 12 12M18 6 6 18" />
   </Glyph>
 );
+
+export const FlightIcon = (props: IconProps) => (
+  <Glyph {...props}>
+    <path d="M3 13.5 21 6l-4.5 13-4-5.2z" />
+    <path d="m12.5 13.8 4-7.8" />
+  </Glyph>
+);

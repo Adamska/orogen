@@ -8,6 +8,7 @@ import { AdaptiveQuality } from './AdaptiveQuality';
 import { AtmosphereRig } from './AtmosphereRig';
 import { BiomeScatter } from './BiomeScatter';
 import { CinematicDirector } from './CinematicDirector';
+import { FlightControls } from './FlightControls';
 import { HistoryCapture } from './HistoryCapture';
 import { PhotoCapture } from './PhotoCapture';
 import { PostProcessingStack } from './PostProcessingStack';
@@ -26,6 +27,7 @@ export function WorldScene({ onReady }: { onReady?: () => void }) {
   useSceneReady(surface !== null, onReady);
   const autoOrbit = useWorldStore((state) => state.autoOrbit);
   const photoMode = useWorldStore((state) => state.photoMode);
+  const flightMode = useWorldStore((state) => state.flightMode);
   const info = useThree((state) => state.gl.info);
 
   useEffect(() => {
@@ -64,6 +66,7 @@ export function WorldScene({ onReady }: { onReady?: () => void }) {
       {surface && <BiomeScatter field={surface.field} />}
       <OrbitControls
         makeDefault
+        enabled={!flightMode}
         enablePan={false}
         enableDamping
         dampingFactor={0.06}
@@ -78,7 +81,8 @@ export function WorldScene({ onReady }: { onReady?: () => void }) {
         target={ORBIT_TARGET}
       />
       <WeatherSystem />
-      <CinematicDirector />
+      {flightMode && surface && <FlightControls field={surface.field} />}
+      <CinematicDirector enabled={!flightMode} />
       <HistoryCapture />
       <PhotoCapture />
       <PostProcessingStack />

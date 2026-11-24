@@ -1,7 +1,7 @@
 'use client';
 
 import { useWorldStore } from '@/store/useWorldStore';
-import { CameraIcon, CycleIcon, OrbitIcon, ShuffleIcon } from './icons';
+import { CameraIcon, CycleIcon, FlightIcon, OrbitIcon, ShuffleIcon } from './icons';
 import { ShareButton } from './ShareButton';
 import { ToggleButton } from './ToggleButton';
 
@@ -12,6 +12,8 @@ export function WorldActions() {
   const toggleAutoOrbit = useWorldStore((state) => state.toggleAutoOrbit);
   const toggleTimeLapse = useWorldStore((state) => state.toggleTimeLapse);
   const setPhotoMode = useWorldStore((state) => state.setPhotoMode);
+  const flightMode = useWorldStore((state) => state.flightMode);
+  const setFlightMode = useWorldStore((state) => state.setFlightMode);
 
   return (
     <div className="space-y-2 pt-1">
@@ -23,12 +25,15 @@ export function WorldActions() {
         <ShuffleIcon />
         New seed
       </button>
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-5 gap-1.5">
         <ToggleButton label="Automatic camera orbit" pressed={autoOrbit} onToggle={toggleAutoOrbit}>
           <OrbitIcon />
         </ToggleButton>
         <ToggleButton label="Day and night time lapse" pressed={timeLapse} onToggle={toggleTimeLapse} tone="warm">
           <CycleIcon />
+        </ToggleButton>
+        <ToggleButton label="Free flight" pressed={flightMode} onToggle={() => setFlightMode(!flightMode)}>
+          <FlightIcon />
         </ToggleButton>
         <ToggleButton label="Photo mode" pressed={false} onToggle={() => setPhotoMode(true)}>
           <CameraIcon />

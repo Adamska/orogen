@@ -32,7 +32,7 @@ export function ShareButton() {
       onClick={share}
       aria-label={copied ? 'Link copied' : 'Copy a link to this world'}
       title={copied ? 'Link copied' : 'Copy a link to this world'}
-      className={`flex items-center justify-center rounded-xl border px-3 py-2 transition-colors ${
+      className={`flex items-center justify-center rounded-xl border py-2 transition-colors ${
         copied
           ? 'border-emerald-300/50 bg-emerald-300/20 text-emerald-100'
           : 'border-white/15 bg-white/5 text-white/70 hover:text-white'
