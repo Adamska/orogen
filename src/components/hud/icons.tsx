@@ -82,3 +82,16 @@ export const CycleIcon = (props: IconProps) => (
     <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4" />
   </Glyph>
 );
+
+export const CameraIcon = (props: IconProps) => (
+  <Glyph {...props}>
+    <path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1.5-2h6l1.5 2h2A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z" />
+    <circle cx="12" cy="13" r="3.5" />
+  </Glyph>
+);
+
+export const CloseIcon = (props: IconProps) => (
+  <Glyph {...props}>
+    <path d="m6 6 12 12M18 6 6 18" />
+  </Glyph>
+);

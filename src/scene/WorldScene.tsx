@@ -9,21 +9,23 @@ import { AtmosphereRig } from './AtmosphereRig';
 import { BiomeScatter } from './BiomeScatter';
 import { CinematicDirector } from './CinematicDirector';
 import { HistoryCapture } from './HistoryCapture';
+import { PhotoCapture } from './PhotoCapture';
 import { PostProcessingStack } from './PostProcessingStack';
 import { TerrainWorld } from './TerrainWorld';
 import { useSceneReady } from './useSceneReady';
 import { useTerrainSurface } from './useTerrainSurface';
 import { WeatherSystem } from './WeatherSystem';
 import { frameStats } from './frameStats';
+import { ORBIT_TARGET } from './orbitRig';
 import { beginDayCycle, endDayCycle } from './dayCycle';
 import { stepWorld, syncWorldTargets, worldRuntime } from './worldRuntime';
 
-const ORBIT_TARGET: [number, number, number] = [0, 58, 0];
 
 export function WorldScene({ onReady }: { onReady?: () => void }) {
   const surface = useTerrainSurface();
   useSceneReady(surface !== null, onReady);
   const autoOrbit = useWorldStore((state) => state.autoOrbit);
+  const photoMode = useWorldStore((state) => state.photoMode);
   const info = useThree((state) => state.gl.info);
 
   useEffect(() => {
@@ -67,7 +69,7 @@ export function WorldScene({ onReady }: { onReady?: () => void }) {
         dampingFactor={0.06}
         rotateSpeed={0.55}
         zoomSpeed={0.7}
-        autoRotate={autoOrbit}
+        autoRotate={autoOrbit && !photoMode}
         autoRotateSpeed={0.32}
         minDistance={220}
         maxDistance={1500}
@@ -78,6 +80,7 @@ export function WorldScene({ onReady }: { onReady?: () => void }) {
       <WeatherSystem />
       <CinematicDirector />
       <HistoryCapture />
+      <PhotoCapture />
       <PostProcessingStack />
     </>
   );
