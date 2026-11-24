@@ -17,17 +17,22 @@ uniform float uVolcanism;
 
 vec3 geologicGlow(vec2 planar, vec4 field, float shore, vec3 crisp, float relief) {
   vec2 uv = fieldUv(planar);
-  float upheaval = abs(texture2D(uElevationTo, uv).r - texture2D(uElevationFrom, uv).r) * uAmplitude;
-  float reshaping = smoothstep(8.0, 60.0, upheaval) * pow(sin(3.14159 * clamp(uMorph, 0.0, 1.0)), 2.0);
+  float upheaval = (texture2D(uElevationTo, uv).r - texture2D(uElevationFrom, uv).r) * uAmplitude;
+  float front = valueNoise(planar * 0.012 + uMorph * 3.0);
+  float reshaping = smoothstep(10.0, 70.0, upheaval) * pow(sin(3.14159 * clamp(uMorph, 0.0, 1.0)), 2.0) *
+    smoothstep(0.35, 0.75, front);
   float flow = valueNoise(planar * 0.03 + vec2(uTime * 0.05, -uTime * 0.03));
-  float rivers = smoothstep(0.004, 0.018, field.a + (flow - 0.5) * 0.008) *
+  float channel = field.a + (flow - 0.5) * 0.008;
+  float seams = 1.0 - smoothstep(0.0, 0.07, abs(valueNoise(planar * 0.09 + flow) - 0.5));
+  float core = smoothstep(0.022, 0.045, channel);
+  float rivers = smoothstep(0.008, 0.024, channel) * mix(seams * 0.7, 1.0, core) *
     (1.0 - smoothstep(0.3, 0.55, field.r)) * smoothstep(0.35, 0.75, uVolcanism);
   float cracks = (1.0 - smoothstep(0.0, 0.018, abs(crisp.x - 0.47))) * smoothstep(0.1, 0.6, uVolcanism) *
     smoothstep(0.4, 0.7, relief);
   float pulse = 0.82 + 0.18 * sin(uTime * 1.7 + flow * 9.0);
   float molten = max(rivers, cracks * 0.32) * pulse * step(0.5, shore);
-  vec3 lava = mix(vec3(2.6, 0.5, 0.08), vec3(4.2, 1.6, 0.35), flow) * molten;
-  vec3 energy = mix(vec3(0.5, 0.75, 1.3), vec3(1.8, 0.55, 0.12), uVolcanism) * reshaping * 0.35;
+  vec3 lava = mix(vec3(1.7, 0.32, 0.05), vec3(2.9, 1.05, 0.22), flow) * molten;
+  vec3 energy = mix(vec3(0.45, 0.7, 1.2), vec3(1.6, 0.45, 0.1), uVolcanism) * reshaping * 0.18;
   return lava + energy;
 }
 
