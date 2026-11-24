@@ -13,13 +13,15 @@ varying vec3 vNormal;
 varying vec3 vShade;
 
 void main() {
-  float presence = uFoliageScale;
+  vec2 anchor = (modelMatrix * instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xz;
+  float ground = sampleField(anchor).r;
+  float presence = smoothstep(0.25, 1.0, uFoliageScale);
   #ifdef SCATTER_SWAY
-    presence *= smoothstep(1.0, 4.5, (aPlacement.x - uWaterLevel) * uAmplitude);
+    presence *= smoothstep(1.0, 4.5, (ground - uWaterLevel) * uAmplitude);
   #endif
 
   vec4 worldPosition = modelMatrix * instanceMatrix * vec4(position * presence, 1.0);
-  worldPosition.y += aPlacement.x * uAmplitude;
+  worldPosition.y += ground * uAmplitude - aPlacement.x;
 
   #ifdef SCATTER_SWAY
     float phase = uTime * 1.35 + aPlacement.y * 6.283 + worldPosition.x * 0.031 +

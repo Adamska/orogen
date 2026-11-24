@@ -73,7 +73,7 @@ function populate(
     position.set(x, 0, z);
     matrix.compose(position, rotation, placed.scale);
     matrix.toArray(matrices, count * 16);
-    placements[count * 3] = sample.elevation - placed.sink / rules.amplitude;
+    placements[count * 3] = placed.sink;
     placements[count * 3 + 1] = random();
     placements[count * 3 + 2] = random();
     count += 1;
