@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useWorldStore } from '@/store/useWorldStore';
-import { decodeWorldLink, encodeWorldLink } from '@/store/worldLink';
+import { encodeWorldLink, hasWorldLink } from '@/store/worldLink';
 
 const WRITE_DELAY_MS = 350;
 
@@ -15,11 +15,14 @@ export function currentWorldUrl(): string {
 
 export function WorldLinkSync() {
   useEffect(() => {
-    const applyHash = () => {
-      const link = decodeWorldLink(window.location.hash);
+    const applyHash = async () => {
+      const hash = window.location.hash;
+      if (!hasWorldLink(hash)) return;
+      const { decodeWorldLink } = await import('@/store/worldLinkDecoder');
+      const link = decodeWorldLink(hash);
       if (link) useWorldStore.getState().loadShared(link);
     };
-    applyHash();
+    void applyHash();
 
     let timer = 0;
     const unsubscribe = useWorldStore.subscribe((state, previous) => {

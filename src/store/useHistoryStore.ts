@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { WorldConfig } from '@/engine/worldConfig';
-import { decodeWorldLink, encodeWorldLink } from './worldLink';
+import { encodeWorldLink } from './worldLink';
 
 export interface HistoryEntry {
   readonly id: string;
@@ -16,7 +16,7 @@ interface StoredEntry {
 
 interface HistoryStore {
   entries: readonly HistoryEntry[];
-  hydrate: () => void;
+  hydrate: () => Promise<void>;
   record: (entry: Omit<HistoryEntry, 'id'>) => void;
 }
 
@@ -37,8 +37,9 @@ function persist(entries: readonly HistoryEntry[]): void {
   }
 }
 
-function restore(): HistoryEntry[] {
+async function restore(): Promise<HistoryEntry[]> {
   try {
+    const { decodeWorldLink } = await import('./worldLinkDecoder');
     const raw = window.localStorage.getItem(STORAGE_KEY);
     const stored: unknown = raw ? JSON.parse(raw) : [];
     if (!Array.isArray(stored)) return [];
@@ -54,7 +55,7 @@ function restore(): HistoryEntry[] {
 
 export const useHistoryStore = create<HistoryStore>((set, get) => ({
   entries: [],
-  hydrate: () => set({ entries: restore() }),
+  hydrate: async () => set({ entries: await restore() }),
   record: (entry) => {
     const id = entryId(entry.seed, entry.world);
     const entries = [{ ...entry, id }, ...get().entries.filter((item) => item.id !== id)].slice(0, HISTORY_LIMIT);

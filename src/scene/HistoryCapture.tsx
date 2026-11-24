@@ -16,7 +16,7 @@ export function HistoryCapture() {
   const canvas = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
-    useHistoryStore.getState().hydrate();
+    void useHistoryStore.getState().hydrate();
     return useWorldStore.subscribe((state, previous) => {
       if (state.flightToken !== previous.flightToken) countdown.current = TERRAFORM_DELAY;
     });

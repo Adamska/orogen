@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import type { TerraformPreset } from '@/ai/presets';
 import { describeTerraform } from '@/ai/directorNotes';
-import { requestTerraform } from '@/ai/requestTerraform';
 import type { WorldLink } from './worldLink';
 import {
   DEFAULT_SEED,
@@ -104,7 +103,14 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
   direct: async (prompt) => {
     if (get().directing) return;
     set({ directing: true });
-    const { directive, seed, source } = await requestTerraform(prompt);
+    const response = await import('@/ai/requestTerraform')
+      .then(({ requestTerraform }) => requestTerraform(prompt))
+      .catch(() => null);
+    if (response === null) {
+      set({ directing: false });
+      return;
+    }
+    const { directive, seed, source } = response;
     set((state) => ({
       world: directive,
       seed,
