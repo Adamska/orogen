@@ -8,6 +8,7 @@ import { TERRAIN_SIZE } from '@/engine/worldConfig';
 import { terrainShader, waterShader } from '@/shaders';
 import { createDepthMaterial, createLitMaterial } from './materials';
 import type { TerrainSurface } from './useTerrainSurface';
+import { terrainHandles } from './terrainHandles';
 import { beginTerrainMorph } from './worldRuntime';
 import { worldUniforms } from './worldUniforms';
 
@@ -50,7 +51,13 @@ export function TerrainWorld({ surface }: { surface: TerrainSurface }) {
     beginTerrainMorph(outgoing !== null);
   }, [surface]);
 
-  useEffect(() => () => terrainGeometry.dispose(), [terrainGeometry]);
+  useEffect(() => {
+    terrainHandles.geometry = terrainGeometry;
+    return () => {
+      if (terrainHandles.geometry === terrainGeometry) terrainHandles.geometry = null;
+      terrainGeometry.dispose();
+    };
+  }, [terrainGeometry]);
   useEffect(
     () => () => {
       oceanGeometry.dispose();

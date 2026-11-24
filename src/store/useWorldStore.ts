@@ -11,6 +11,8 @@ import {
   type WorldConfig,
 } from '@/engine/worldConfig';
 
+export type SculptMode = 'off' | 'raise' | 'lower';
+
 export type WorldOrigin = 'preset' | 'model' | 'local' | 'shared';
 
 export interface DirectorLog {
@@ -26,6 +28,8 @@ export interface WorldStore {
   timeLapse: boolean;
   photoMode: boolean;
   flightMode: boolean;
+  sculptMode: SculptMode;
+  brushRadius: number;
   captureToken: number;
   commandOpen: boolean;
   directing: boolean;
@@ -45,6 +49,8 @@ export interface WorldStore {
   toggleTimeLapse: () => void;
   setPhotoMode: (photoMode: boolean) => void;
   setFlightMode: (flightMode: boolean) => void;
+  setSculptMode: (sculptMode: SculptMode) => void;
+  setBrushRadius: (brushRadius: number) => void;
   requestCapture: () => void;
   setCommandOpen: (commandOpen: boolean) => void;
 }
@@ -59,6 +65,8 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
   timeLapse: false,
   photoMode: false,
   flightMode: false,
+  sculptMode: 'off',
+  brushRadius: 70,
   captureToken: 0,
   commandOpen: false,
   directing: false,
@@ -117,6 +125,8 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
   setAutoOrbit: (autoOrbit) => set({ autoOrbit }),
   toggleTimeLapse: () => set((state) => ({ timeLapse: !state.timeLapse })),
   setPhotoMode: (photoMode) => set({ photoMode, commandOpen: false }),
+  setSculptMode: (sculptMode) => set({ sculptMode, flightMode: false, commandOpen: false }),
+  setBrushRadius: (brushRadius) => set({ brushRadius }),
   setFlightMode: (flightMode) =>
     set((state) => ({
       flightMode,

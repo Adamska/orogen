@@ -102,3 +102,10 @@ export const FlightIcon = (props: IconProps) => (
     <path d="m12.5 13.8 4-7.8" />
   </Glyph>
 );
+
+export const BrushIcon = (props: IconProps) => (
+  <Glyph {...props}>
+    <path d="M19.5 4.5 11 13" />
+    <path d="M11 13c-2.5-.5-5 1-5 4 0 1.5-1 2.5-2.5 2.5C5 21 8 21.5 10 20s2.5-4 1-7z" />
+  </Glyph>
+);

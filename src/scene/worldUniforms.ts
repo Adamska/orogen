@@ -1,4 +1,4 @@
-import { Color, Vector3, type IUniform, type Texture } from 'three';
+import { Color, Vector3, Vector4, type IUniform, type Texture } from 'three';
 import { TERRAIN_SEGMENTS, TERRAIN_SIZE } from '@/engine/worldConfig';
 
 function uniform<T>(value: T): IUniform<T> {
@@ -19,6 +19,7 @@ export const worldUniforms = {
   uVolcanism: uniform(0),
   uCloudCover: uniform(0.4),
   uCloudSteps: uniform(14),
+  uBrush: uniform(new Vector4(0, 0, 0, 0)),
   uSkyZenith: uniform(new Color()),
   uSkyHorizon: uniform(new Color()),
   uFogDensity: uniform(0),

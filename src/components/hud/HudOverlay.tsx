@@ -6,6 +6,7 @@ import { DirectorLog } from './DirectorLog';
 import { EnvironmentControls } from './EnvironmentControls';
 import { FlightHint } from './FlightHint';
 import { PhotoToolbar } from './PhotoToolbar';
+import { SculptPanel } from './SculptPanel';
 import { TelemetryBadge } from './TelemetryBadge';
 import { WorldHistory } from './WorldHistory';
 import { WorldLinkSync } from './WorldLinkSync';
@@ -14,6 +15,7 @@ import { WorldTitle } from './WorldTitle';
 export function HudOverlay() {
   const photoMode = useWorldStore((state) => state.photoMode);
   const flightMode = useWorldStore((state) => state.flightMode);
+  const sculpting = useWorldStore((state) => state.sculptMode !== 'off');
 
   return (
     <div className="pointer-events-none absolute inset-0 z-10 animate-[rise_900ms_ease-out_both]">
@@ -38,7 +40,7 @@ export function HudOverlay() {
           </div>
           <div className="absolute inset-x-0 bottom-5 flex flex-col items-center gap-3 px-4 sm:bottom-7">
             <DirectorLog />
-            {flightMode ? <FlightHint /> : <CommandBar />}
+            {flightMode ? <FlightHint /> : sculpting ? <SculptPanel /> : <CommandBar />}
           </div>
         </>
       )}

@@ -3,6 +3,7 @@
 import { OrbitControls } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect } from 'react';
+import { MOUSE } from 'three';
 import { useWorldStore } from '@/store/useWorldStore';
 import { AdaptiveQuality } from './AdaptiveQuality';
 import { AtmosphereRig } from './AtmosphereRig';
@@ -11,6 +12,7 @@ import { CinematicDirector } from './CinematicDirector';
 import { FlightControls } from './FlightControls';
 import { HistoryCapture } from './HistoryCapture';
 import { PhotoCapture } from './PhotoCapture';
+import { SculptTool } from './SculptTool';
 import { PostProcessingStack } from './PostProcessingStack';
 import { TerrainWorld } from './TerrainWorld';
 import { useSceneReady } from './useSceneReady';
@@ -22,12 +24,16 @@ import { beginDayCycle, endDayCycle } from './dayCycle';
 import { stepWorld, syncWorldTargets, worldRuntime } from './worldRuntime';
 
 
+const ORBIT_BUTTONS = { LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.PAN };
+const SCULPT_BUTTONS = { MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.ROTATE };
+
 export function WorldScene({ onReady }: { onReady?: () => void }) {
   const surface = useTerrainSurface();
   useSceneReady(surface !== null, onReady);
   const autoOrbit = useWorldStore((state) => state.autoOrbit);
   const photoMode = useWorldStore((state) => state.photoMode);
   const flightMode = useWorldStore((state) => state.flightMode);
+  const sculpting = useWorldStore((state) => state.sculptMode !== 'off');
   const info = useThree((state) => state.gl.info);
 
   useEffect(() => {
@@ -72,7 +78,8 @@ export function WorldScene({ onReady }: { onReady?: () => void }) {
         dampingFactor={0.06}
         rotateSpeed={0.55}
         zoomSpeed={0.7}
-        autoRotate={autoOrbit && !photoMode}
+        autoRotate={autoOrbit && !photoMode && !sculpting}
+        mouseButtons={sculpting ? SCULPT_BUTTONS : ORBIT_BUTTONS}
         autoRotateSpeed={0.32}
         minDistance={220}
         maxDistance={1500}
@@ -82,6 +89,7 @@ export function WorldScene({ onReady }: { onReady?: () => void }) {
       />
       <WeatherSystem />
       {flightMode && surface && <FlightControls field={surface.field} />}
+      {sculpting && surface && <SculptTool surface={surface} />}
       <CinematicDirector enabled={!flightMode} />
       <HistoryCapture />
       <PhotoCapture />

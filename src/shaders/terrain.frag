@@ -14,6 +14,7 @@ uniform vec3 uSnowColor;
 uniform vec3 uWaterDeep;
 uniform float uRain;
 uniform float uVolcanism;
+uniform vec4 uBrush;
 
 vec3 geologicGlow(vec2 planar, vec4 field, float shore, vec3 crisp, float relief) {
   vec2 uv = fieldUv(planar);
@@ -132,5 +133,9 @@ void main() {
     exp(-depth * 0.07) * max(uLightDirection.y, 0.0) * 1.6;
 
   lit += geologicGlow(planar, field, shore, crisp, relief.x);
+  float brushDistance = length(planar - uBrush.xy);
+  float ring = 1.0 - smoothstep(0.0, 1.1 + range * 0.0025, abs(brushDistance - uBrush.z));
+  float disc = (1.0 - smoothstep(uBrush.z * 0.9, uBrush.z, brushDistance)) * 0.06;
+  lit = mix(lit, vec3(0.95, 0.97, 1.0), (ring * 0.75 + disc) * uBrush.w);
   gl_FragColor = vec4(applyAtmosphere(lit, vWorldPosition), 1.0);
 }
