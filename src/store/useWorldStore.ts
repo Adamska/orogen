@@ -7,6 +7,7 @@ import {
   DEFAULT_SEED,
   DEFAULT_WORLD,
   type AtmosphereState,
+  type TerrainShape,
   type WeatherKind,
   type WorldConfig,
 } from '@/engine/worldConfig';
@@ -43,6 +44,8 @@ export interface WorldStore {
   setWaterLevel: (waterLevel: number) => void;
   setFoliageDensity: (foliageDensity: number) => void;
   setWeather: (weather: WeatherKind) => void;
+  tweakWorld: (patch: Partial<Pick<WorldConfig, 'snowLine' | 'volcanism'>>) => void;
+  setTerrain: (patch: Partial<TerrainShape>) => void;
   regenerateSeed: () => void;
   toggleAutoOrbit: () => void;
   setAutoOrbit: (autoOrbit: boolean) => void;
@@ -120,6 +123,9 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
   setFoliageDensity: (foliageDensity) =>
     set((state) => ({ world: { ...state.world, foliageDensity } })),
   setWeather: (weather) => set((state) => ({ world: { ...state.world, weather } })),
+  tweakWorld: (patch) => set((state) => ({ world: { ...state.world, ...patch } })),
+  setTerrain: (patch) =>
+    set((state) => ({ world: { ...state.world, terrain: { ...state.world.terrain, ...patch } } })),
   regenerateSeed: () => set({ seed: Math.floor(Math.random() * SEED_SPACE) }),
   toggleAutoOrbit: () => set((state) => ({ autoOrbit: !state.autoOrbit })),
   setAutoOrbit: (autoOrbit) => set({ autoOrbit }),

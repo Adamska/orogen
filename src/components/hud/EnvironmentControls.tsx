@@ -6,6 +6,7 @@ import { useWorldStore } from '@/store/useWorldStore';
 import { GlassPanel } from './GlassPanel';
 import { ChevronIcon } from './icons';
 import { RangeField } from './RangeField';
+import { TerrainControls } from './TerrainControls';
 import { WeatherPicker } from './WeatherPicker';
 import { WorldActions } from './WorldActions';
 
@@ -39,7 +40,7 @@ export function EnvironmentControls() {
   const setFoliageDensity = useWorldStore((state) => state.setFoliageDensity);
 
   return (
-    <GlassPanel className="w-60 rounded-2xl">
+    <GlassPanel className="w-full rounded-2xl sm:w-60">
       <button
         type="button"
         onClick={() => setPreference(!expanded)}
@@ -51,7 +52,7 @@ export function EnvironmentControls() {
       </button>
 
       {expanded && (
-        <div className="space-y-3 border-t border-white/10 px-4 pb-4 pt-3.5">
+        <div className="max-h-[46dvh] space-y-3 overflow-y-auto overscroll-contain border-t border-white/10 px-4 pb-4 pt-3.5 sm:max-h-[calc(100dvh-10rem)]">
           <RangeField
             label="Sun elevation"
             value={atmosphere.sunElevation}
@@ -96,6 +97,7 @@ export function EnvironmentControls() {
           />
 
           <WeatherPicker />
+          <TerrainControls />
           <WorldActions />
         </div>
       )}
