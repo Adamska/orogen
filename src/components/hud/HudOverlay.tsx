@@ -7,6 +7,7 @@ import { EnvironmentControls } from './EnvironmentControls';
 import { FlightHint } from './FlightHint';
 import { PhotoToolbar } from './PhotoToolbar';
 import { SculptPanel } from './SculptPanel';
+import { SoundToggle } from './SoundToggle';
 import { TelemetryBadge } from './TelemetryBadge';
 import { WorldHistory } from './WorldHistory';
 import { WorldLinkSync } from './WorldLinkSync';
@@ -32,8 +33,11 @@ export function HudOverlay() {
               <WorldHistory />
             </div>
           </div>
-          <div className="absolute right-4 top-4 hidden md:block sm:right-6 sm:top-6">
-            <TelemetryBadge />
+          <div className="absolute right-4 top-4 flex items-center gap-2 sm:right-6 sm:top-6">
+            <div className="hidden md:block">
+              <TelemetryBadge />
+            </div>
+            <SoundToggle />
           </div>
           <div className="absolute bottom-20 right-4 sm:bottom-auto sm:right-6 sm:top-1/2 sm:-translate-y-1/2">
             <EnvironmentControls />

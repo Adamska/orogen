@@ -109,3 +109,13 @@ export const BrushIcon = (props: IconProps) => (
     <path d="M11 13c-2.5-.5-5 1-5 4 0 1.5-1 2.5-2.5 2.5C5 21 8 21.5 10 20s2.5-4 1-7z" />
   </Glyph>
 );
+
+export const SoundIcon = (props: IconProps & { muted?: boolean }) => {
+  const { muted = false, ...rest } = props;
+  return (
+    <Glyph {...rest}>
+      <path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z" />
+      {muted ? <path d="m16 10 4 4m0-4-4 4" /> : <path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" />}
+    </Glyph>
+  );
+};
