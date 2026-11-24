@@ -2,10 +2,9 @@
 
 import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useRef } from 'react';
-import { BufferAttribute, Vector2, Vector3 } from 'three';
+import { Vector2, Vector3 } from 'three';
 import { applyBrush, intersectHeightfield } from '@/engine/sculpt';
 import { useWorldStore } from '@/store/useWorldStore';
-import { terrainHandles } from './terrainHandles';
 import type { TerrainSurface } from './useTerrainSurface';
 import { worldRuntime } from './worldRuntime';
 import { worldUniforms } from './worldUniforms';
@@ -69,20 +68,13 @@ export function SculptTool({ surface }: { surface: TerrainSurface }) {
     if (pressing.current && hit && anchorHeight.current === null) anchorHeight.current = hit.y;
     brush.set(hit?.x ?? 0, hit?.z ?? 0, brushRadius, hit ? 1 : 0);
 
-    const geometry = terrainHandles.geometry;
     const texture = worldUniforms.uElevationTo.value;
     const settled = worldRuntime.morphProgress >= 1 && !worldRuntime.rebuildPending;
-    if (!pressing.current || !hit || !geometry || !texture || !settled) return;
+    if (!pressing.current || !hit || !texture || !settled) return;
 
     const sign = mode === 'lower' ? -1 : 1;
     const strength = (sign * BRUSH_RATE * Math.min(delta, 0.05) * 60) / Math.max(worldUniforms.uAmplitude.value, 1);
-    const rows = applyBrush(surface.field, surface.buffers, { x: hit.x, z: hit.z, radius: brushRadius, strength });
-    const positions = geometry.getAttribute('position');
-    if (!(positions instanceof BufferAttribute)) return;
-    const stride = surface.field.resolution * 3;
-    positions.clearUpdateRanges();
-    positions.addUpdateRange(rows.first * stride, (rows.last - rows.first + 1) * stride);
-    positions.needsUpdate = true;
+    applyBrush(surface.field, surface.texels, { x: hit.x, z: hit.z, radius: brushRadius, strength });
     texture.needsUpdate = true;
   });
 

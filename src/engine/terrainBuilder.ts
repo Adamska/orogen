@@ -11,7 +11,7 @@ import {
   Sphere,
   Vector3,
 } from 'three';
-import type { ElevationField } from './elevationField';
+import { sampleField, type ElevationField, type FieldSample } from './elevationField';
 import { HORIZON_RADIUS } from './worldConfig';
 
 function axisPosition(index: number, last: number, size: number): number {
@@ -40,26 +40,14 @@ function buildGridIndices(resolution: number, elevations?: Float32Array): Uint32
   return indices;
 }
 
-export interface SurfaceBuffers {
+export interface TerrainMesh {
+  readonly resolution: number;
   readonly positions: Float32Array;
   readonly indices: Uint32Array;
-  readonly texels: Uint16Array;
 }
 
-export function buildSurfaceBuffers(field: ElevationField): SurfaceBuffers {
-  const { resolution, size, elevations, gradients, openness } = field;
-  const last = resolution - 1;
-  const positions = new Float32Array(resolution * resolution * 3);
-  for (let row = 0; row < resolution; row += 1) {
-    const z = axisPosition(row, last, size);
-    for (let column = 0; column < resolution; column += 1) {
-      const vertex = row * resolution + column;
-      positions[vertex * 3] = axisPosition(column, last, size);
-      positions[vertex * 3 + 1] = elevations[vertex];
-      positions[vertex * 3 + 2] = z;
-    }
-  }
-
+export function buildFieldTexels(field: ElevationField): Uint16Array {
+  const { resolution, elevations, gradients, openness } = field;
   const texels = new Uint16Array(resolution * resolution * 4);
   for (let index = 0; index < elevations.length; index += 1) {
     const texel = index * 4;
@@ -68,18 +56,31 @@ export function buildSurfaceBuffers(field: ElevationField): SurfaceBuffers {
     texels[texel + 2] = DataUtils.toHalfFloat(gradients[index * 2 + 1]);
     texels[texel + 3] = DataUtils.toHalfFloat(openness[index]);
   }
-
-  return { positions, indices: buildGridIndices(resolution, elevations), texels };
+  return texels;
 }
 
-export function createTerrainGeometry(
-  buffers: SurfaceBuffers,
-  fromElevations: Float32Array,
-): BufferGeometry {
+export function buildTerrainMesh(field: ElevationField, resolution: number): TerrainMesh {
+  const last = resolution - 1;
+  const positions = new Float32Array(resolution * resolution * 3);
+  const heights = new Float32Array(resolution * resolution);
+  const sample: FieldSample = { elevation: 0, gradientX: 0, gradientZ: 0, openness: 0 };
+  for (let row = 0; row < resolution; row += 1) {
+    const z = axisPosition(row, last, field.size);
+    const sampleZ = (row / last - 0.5) * field.size;
+    for (let column = 0; column < resolution; column += 1) {
+      const vertex = row * resolution + column;
+      positions[vertex * 3] = axisPosition(column, last, field.size);
+      positions[vertex * 3 + 2] = z;
+      heights[vertex] = sampleField(field, (column / last - 0.5) * field.size, sampleZ, sample).elevation;
+    }
+  }
+  return { resolution, positions, indices: buildGridIndices(resolution, heights) };
+}
+
+export function createTerrainGeometry(mesh: TerrainMesh): BufferGeometry {
   const geometry = new BufferGeometry();
-  geometry.setAttribute('position', new BufferAttribute(buffers.positions, 3));
-  geometry.setAttribute('aFromElevation', new BufferAttribute(fromElevations, 1));
-  geometry.setIndex(new BufferAttribute(buffers.indices, 1));
+  geometry.setAttribute('position', new BufferAttribute(mesh.positions, 3));
+  geometry.setIndex(new BufferAttribute(mesh.indices, 1));
   geometry.boundingSphere = new Sphere(new Vector3(0, 0, 0), HORIZON_RADIUS * Math.SQRT2);
   return geometry;
 }

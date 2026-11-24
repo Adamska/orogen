@@ -8,7 +8,6 @@ import { TERRAIN_SIZE } from '@/engine/worldConfig';
 import { terrainShader, waterShader } from '@/shaders';
 import { createDepthMaterial, createLitMaterial } from './materials';
 import type { TerrainSurface } from './useTerrainSurface';
-import { terrainHandles } from './terrainHandles';
 import { beginTerrainMorph } from './worldRuntime';
 import { worldUniforms } from './worldUniforms';
 
@@ -26,11 +25,7 @@ function releaseFieldTextures(): void {
 export function TerrainWorld({ surface }: { surface: TerrainSurface }) {
   const waterRef = useRef<Mesh>(null);
 
-  const terrainGeometry = useMemo(() => {
-    const { field, buffers, previousElevations } = surface;
-    const from = previousElevations?.length === field.elevations.length ? previousElevations : field.elevations;
-    return createTerrainGeometry(buffers, from.slice());
-  }, [surface]);
+  const terrainGeometry = useMemo(() => createTerrainGeometry(surface.mesh), [surface.mesh]);
   const oceanGeometry = useMemo(() => buildOceanGeometry(OCEAN_RESOLUTION, OCEAN_DETAIL_SIZE), []);
   const materials = useMemo(
     () => ({
@@ -42,22 +37,16 @@ export function TerrainWorld({ surface }: { surface: TerrainSurface }) {
   );
 
   useLayoutEffect(() => {
-    const texture = createFieldTexture(surface.buffers.texels, surface.field.resolution);
+    const texture = createFieldTexture(surface.texels, surface.field.resolution);
     const outgoing = worldUniforms.uElevationTo.value;
     const stale = worldUniforms.uElevationFrom.value;
     worldUniforms.uElevationFrom.value = outgoing ?? texture;
     worldUniforms.uElevationTo.value = texture;
     if (stale !== null && stale !== outgoing) stale.dispose();
     beginTerrainMorph(outgoing !== null);
-  }, [surface]);
+  }, [surface.field, surface.texels]);
 
-  useEffect(() => {
-    terrainHandles.geometry = terrainGeometry;
-    return () => {
-      if (terrainHandles.geometry === terrainGeometry) terrainHandles.geometry = null;
-      terrainGeometry.dispose();
-    };
-  }, [terrainGeometry]);
+  useEffect(() => () => terrainGeometry.dispose(), [terrainGeometry]);
   useEffect(
     () => () => {
       oceanGeometry.dispose();

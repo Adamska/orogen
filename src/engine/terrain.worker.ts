@@ -1,8 +1,9 @@
 import { buildElevationField, type ElevationField, type FieldParams } from './elevationField';
 import { scatterBiome } from './scatterPlacement';
-import { buildSurfaceBuffers } from './terrainBuilder';
+import { buildFieldTexels, buildTerrainMesh } from './terrainBuilder';
 import {
   layoutTransferables,
+  meshTransferables,
   sameFieldParams,
   surfaceTransferables,
   type WorkerRequest,
@@ -35,8 +36,17 @@ function detach(field: ElevationField): ElevationField {
 function handle(request: WorkerRequest): void {
   if (request.kind === 'surface') {
     const field = fieldFor(request.params);
-    const result = { field: detach(field), buffers: buildSurfaceBuffers(field) };
+    const result = {
+      field: detach(field),
+      texels: buildFieldTexels(field),
+      mesh: buildTerrainMesh(field, request.meshResolution),
+    };
     scope.postMessage({ kind: 'surface', id: request.id, result }, surfaceTransferables(result));
+    return;
+  }
+  if (request.kind === 'mesh') {
+    const mesh = buildTerrainMesh(fieldFor(request.params), request.meshResolution);
+    scope.postMessage({ kind: 'mesh', id: request.id, result: mesh }, meshTransferables(mesh));
     return;
   }
   const layout = scatterBiome(fieldFor(request.params), request.rules);

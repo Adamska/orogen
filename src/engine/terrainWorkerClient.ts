@@ -1,6 +1,6 @@
 import { buildElevationField, type FieldParams } from './elevationField';
 import { scatterBiome, type BiomeLayout, type ScatterRules } from './scatterPlacement';
-import { buildSurfaceBuffers } from './terrainBuilder';
+import { buildFieldTexels, buildTerrainMesh, type TerrainMesh } from './terrainBuilder';
 import type { SurfaceResult, WorkerRequest, WorkerResponse } from './terrainProtocol';
 
 type Settle = (response: WorkerResponse) => void;
@@ -44,15 +44,21 @@ function dispatch(request: WorkerRequest): Promise<WorkerResponse> {
   });
 }
 
-function buildSurfaceInline(params: FieldParams): SurfaceResult {
+function buildSurfaceInline(params: FieldParams, meshResolution: number): SurfaceResult {
   const field = buildElevationField(params);
-  return { field, buffers: buildSurfaceBuffers(field) };
+  return { field, texels: buildFieldTexels(field), mesh: buildTerrainMesh(field, meshResolution) };
 }
 
-export async function requestSurface(params: FieldParams): Promise<SurfaceResult> {
-  const response = await dispatch({ kind: 'surface', id: nextId++, params }).catch(() => null);
+export async function requestSurface(params: FieldParams, meshResolution: number): Promise<SurfaceResult> {
+  const response = await dispatch({ kind: 'surface', id: nextId++, params, meshResolution }).catch(() => null);
   if (response?.kind === 'surface') return response.result;
-  return buildSurfaceInline(params);
+  return buildSurfaceInline(params, meshResolution);
+}
+
+export async function requestMesh(params: FieldParams, meshResolution: number): Promise<TerrainMesh> {
+  const response = await dispatch({ kind: 'mesh', id: nextId++, params, meshResolution }).catch(() => null);
+  if (response?.kind === 'mesh') return response.result;
+  return buildTerrainMesh(buildElevationField(params), meshResolution);
 }
 
 export async function requestScatter(params: FieldParams, rules: ScatterRules): Promise<BiomeLayout> {

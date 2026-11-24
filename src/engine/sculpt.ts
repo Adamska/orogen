@@ -1,6 +1,5 @@
 import { DataUtils } from 'three';
 import { sampleField, type ElevationField, type FieldSample } from './elevationField';
-import type { SurfaceBuffers } from './terrainBuilder';
 
 export interface BrushStroke {
   readonly x: number;
@@ -19,7 +18,7 @@ const MAX_ELEVATION = 1.35;
 const MARCH_STEPS = 220;
 const REFINE_STEPS = 8;
 
-function refreshRegion(field: ElevationField, buffers: SurfaceBuffers, rows: DirtyRows, columns: DirtyRows): void {
+function refreshRegion(field: ElevationField, texels: Uint16Array, rows: DirtyRows, columns: DirtyRows): void {
   const { resolution, size, elevations, gradients, openness } = field;
   const last = resolution - 1;
   const cell = size / last;
@@ -45,16 +44,15 @@ function refreshRegion(field: ElevationField, buffers: SurfaceBuffers, rows: Dir
       openness[index] = surrounding / offsets.length - elevations[index];
 
       const texel = index * 4;
-      buffers.texels[texel] = DataUtils.toHalfFloat(elevations[index]);
-      buffers.texels[texel + 1] = DataUtils.toHalfFloat(gradients[index * 2]);
-      buffers.texels[texel + 2] = DataUtils.toHalfFloat(gradients[index * 2 + 1]);
-      buffers.texels[texel + 3] = DataUtils.toHalfFloat(openness[index]);
-      buffers.positions[index * 3 + 1] = elevations[index];
+      texels[texel] = DataUtils.toHalfFloat(elevations[index]);
+      texels[texel + 1] = DataUtils.toHalfFloat(gradients[index * 2]);
+      texels[texel + 2] = DataUtils.toHalfFloat(gradients[index * 2 + 1]);
+      texels[texel + 3] = DataUtils.toHalfFloat(openness[index]);
     }
   }
 }
 
-export function applyBrush(field: ElevationField, buffers: SurfaceBuffers, stroke: BrushStroke): DirtyRows {
+export function applyBrush(field: ElevationField, texels: Uint16Array, stroke: BrushStroke): DirtyRows {
   const { resolution, size, elevations } = field;
   const last = resolution - 1;
   const toGrid = (value: number) => ((value / size) + 0.5) * last;
@@ -85,7 +83,7 @@ export function applyBrush(field: ElevationField, buffers: SurfaceBuffers, strok
     first: Math.max(0, rows.first - margin),
     last: Math.min(last, rows.last + margin),
   };
-  refreshRegion(field, buffers, dirty, {
+  refreshRegion(field, texels, dirty, {
     first: Math.max(0, columns.first - margin),
     last: Math.min(last, columns.last + margin),
   });

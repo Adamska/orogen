@@ -2,12 +2,10 @@
 #include <shadowmap_pars_vertex>
 #include <orogen_field>
 
-attribute float aFromElevation;
-
 varying vec3 vWorldPosition;
 
 void main() {
-  float elevation = mix(aFromElevation, position.y, uMorph);
+  float elevation = sampleField(position.xz).r;
   vec4 worldPosition =
     modelMatrix * vec4(position.x, elevation * uAmplitude, position.z, 1.0);
   vWorldPosition = worldPosition.xyz;
