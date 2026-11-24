@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { TerraformPreset } from '@/ai/presets';
 import { requestTerraform } from '@/ai/requestTerraform';
+import type { WorldLink } from './worldLink';
 import {
   DEFAULT_SEED,
   DEFAULT_WORLD,
@@ -8,7 +9,7 @@ import {
   type WorldConfig,
 } from '@/engine/worldConfig';
 
-export type WorldOrigin = 'preset' | 'model' | 'local';
+export type WorldOrigin = 'preset' | 'model' | 'local' | 'shared';
 
 export interface WorldStore {
   world: WorldConfig;
@@ -18,6 +19,7 @@ export interface WorldStore {
   commandOpen: boolean;
   directing: boolean;
   applyPreset: (preset: TerraformPreset) => void;
+  loadShared: (link: WorldLink) => void;
   direct: (prompt: string) => Promise<void>;
   setAtmosphere: (patch: Partial<AtmosphereState>) => void;
   setWaterLevel: (waterLevel: number) => void;
@@ -39,6 +41,7 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
   directing: false,
   applyPreset: (preset) =>
     set({ world: preset.directive, seed: preset.seed, origin: 'preset', commandOpen: false }),
+  loadShared: ({ seed, world }) => set({ world, seed, origin: 'shared', commandOpen: false }),
   direct: async (prompt) => {
     if (get().directing) return;
     set({ directing: true });

@@ -8,6 +8,7 @@ const ORIGIN_LABELS: Record<WorldOrigin, string> = {
   preset: 'Curated preset',
   model: 'AI director',
   local: 'Local resolver',
+  shared: 'Shared world',
 };
 
 export function WorldTitle() {

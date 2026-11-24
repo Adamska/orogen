@@ -6,6 +6,7 @@ import { useWorldStore } from '@/store/useWorldStore';
 import { GlassPanel } from './GlassPanel';
 import { ChevronIcon, OrbitIcon, ShuffleIcon } from './icons';
 import { RangeField } from './RangeField';
+import { ShareButton } from './ShareButton';
 
 const WIDE_VIEWPORT_QUERY = '(min-width: 640px)';
 
@@ -115,6 +116,7 @@ export function EnvironmentControls() {
             >
               <OrbitIcon />
             </button>
+            <ShareButton />
           </div>
         </div>
       )}

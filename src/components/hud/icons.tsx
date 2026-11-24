@@ -62,3 +62,16 @@ export const ChevronIcon = (props: IconProps) => (
     <path d="m6 9 6 6 6-6" />
   </Glyph>
 );
+
+export const LinkIcon = (props: IconProps) => (
+  <Glyph {...props}>
+    <path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1" />
+    <path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1" />
+  </Glyph>
+);
+
+export const CheckIcon = (props: IconProps) => (
+  <Glyph {...props}>
+    <path d="m5 12.5 4.5 4.5L19 7.5" />
+  </Glyph>
+);
