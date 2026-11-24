@@ -53,15 +53,15 @@ void main() {
   vec3 reflection = skyRadiance(reflected);
 
   float shadow = sunShadow();
-  float alignment = max(dot(reflected, uSunDirection), 0.0);
+  float alignment = max(dot(reflected, uLightDirection), 0.0);
   float glint = pow(alignment, 1100.0) * 60.0 + pow(alignment, 90.0) * 0.9;
-  vec3 specular = uSunColor * glint * shadow;
+  vec3 specular = uLightColor * glint * shadow;
 
   float absorption = 1.0 - exp(-max(depth, 0.0) * 0.05);
   vec3 body = mix(uWaterShallow, uWaterDeep, absorption);
   vec3 illumination = ambientLight(vec3(0.0, 1.0, 0.0)) * 1.5 +
-    uSunColor * (0.22 + max(uSunDirection.y, 0.0) * 0.6) * mix(0.45, 1.0, shadow);
-  float scatter = pow(max(dot(view, -uSunDirection) * 0.5 + 0.5, 0.0), 4.0) * (1.0 - facing);
+    uLightColor * (0.22 + max(uLightDirection.y, 0.0) * 0.6) * mix(0.45, 1.0, shadow);
+  float scatter = pow(max(dot(view, -uLightDirection) * 0.5 + 0.5, 0.0), 4.0) * (1.0 - facing);
   body += uWaterShallow * scatter * 0.25 * shadow;
   vec3 color = mix(body * illumination, reflection, fresnel) + specular;
 
@@ -74,7 +74,7 @@ void main() {
   float foam = clamp(shoreFoam * 0.9 + bands * 0.6, 0.0, 1.0) *
     smoothstep(0.25, 0.75, fizz + shoreFoam * 0.4);
   vec3 foamColor = vec3(0.94) *
-    (ambientLight(vec3(0.0, 1.0, 0.0)) * 1.3 + uSunColor * max(uSunDirection.y, 0.06) * shadow);
+    (ambientLight(vec3(0.0, 1.0, 0.0)) * 1.3 + uLightColor * max(uLightDirection.y, 0.06) * shadow);
   color = mix(color, foamColor, foam * 0.85);
 
   float clarity = exp(-max(depth, 0.0) * 0.2) * (1.0 - fresnel);

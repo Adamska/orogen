@@ -43,9 +43,9 @@ export function AtmosphereRig() {
     const fill = fillRef.current;
     if (!sun || !fill) return;
 
-    const radiance = worldUniforms.uSunColor.value;
+    const radiance = worldUniforms.uLightColor.value;
     const intensity = Math.max(radiance.r, radiance.g, radiance.b);
-    sun.position.copy(worldUniforms.uSunDirection.value).multiplyScalar(SUN_DISTANCE);
+    sun.position.copy(worldUniforms.uLightDirection.value).multiplyScalar(SUN_DISTANCE);
     sun.intensity = intensity;
     if (intensity > 1e-4) sun.color.copy(radiance).multiplyScalar(1 / intensity);
     sun.castShadow = intensity > 1e-3;

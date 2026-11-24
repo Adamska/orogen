@@ -3,6 +3,8 @@ uniform vec3 uSunColor;
 uniform vec3 uSkyZenith;
 uniform vec3 uSkyHorizon;
 uniform float uFogDensity;
+uniform vec3 uMoonDirection;
+uniform float uNight;
 
 const float FOG_HEIGHT_FALLOFF = 0.011;
 const float FOG_BASE_DENSITY = 0.0034;
@@ -26,8 +28,8 @@ vec3 skyGradient(vec3 direction) {
 
   vec3 rayleigh = mix(uSkyZenith, uSkyHorizon, haze) * (0.8 + 0.2 * cosTheta * cosTheta);
   rayleigh *= mix(0.12, 1.0, daylightFactor());
-
-  return rayleigh;
+  vec3 nightSky = mix(vec3(0.004, 0.008, 0.024), vec3(0.016, 0.026, 0.06), haze);
+  return mix(rayleigh, nightSky, uNight * 0.9);
 }
 
 vec3 sunHalo(vec3 direction) {
@@ -39,8 +41,13 @@ vec3 sunHalo(vec3 direction) {
   return uSunColor * mie * mix(0.4, 1.0, haze) * (1.0 + lowSun * 0.6);
 }
 
+vec3 moonGlow(vec3 direction) {
+  float alignment = max(dot(direction, uMoonDirection), 0.0);
+  return vec3(0.5, 0.6, 0.85) * (pow(alignment, 900.0) * 0.5 + pow(alignment, 40.0) * 0.05) * uNight;
+}
+
 vec3 skyRadiance(vec3 direction) {
-  return skyGradient(direction) + sunHalo(direction);
+  return skyGradient(direction) + sunHalo(direction) + moonGlow(direction);
 }
 
 vec3 sunDisc(vec3 direction) {

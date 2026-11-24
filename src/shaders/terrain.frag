@@ -85,15 +85,15 @@ void main() {
 
   float occlusion = clamp(1.0 - field.a * uAmplitude * 0.05, 0.28, 1.0);
   float shadow = sunShadow();
-  float diffuse = max(dot(normal, uSunDirection), 0.0);
-  vec3 lit = albedo * (uSunColor * diffuse * shadow + ambientLight(normal) * occlusion);
+  float diffuse = max(dot(normal, uLightDirection), 0.0);
+  vec3 lit = albedo * (uLightColor * diffuse * shadow + ambientLight(normal) * occlusion);
 
-  vec3 halfVector = normalize(view + uSunDirection);
+  vec3 halfVector = normalize(view + uLightDirection);
   float highlight = max(dot(normal, halfVector), 0.0);
   float wetSheen = pow(highlight, 90.0) * wetness * sandMask * 1.2;
   float sparkle = step(0.986, hash21(floor(planar * 2.5))) * pow(highlight, 20.0) * snowMask *
     detail * 3.0;
-  lit += uSunColor * (wetSheen + sparkle) * shadow;
+  lit += uLightColor * (wetSheen + sparkle) * shadow;
 
   float depth = max(-shore, 0.0);
   vec2 causticPoint = planar * 0.17;
@@ -101,8 +101,8 @@ void main() {
     valueNoise(causticPoint + uTime * 0.32) - valueNoise(causticPoint * 1.35 - uTime * 0.26 + 9.0)
   ) * 2.4;
   caustic = pow(clamp(caustic, 0.0, 1.0), 9.0);
-  lit += albedo * uSunColor * caustic * shadow * detail * smoothstep(0.0, 2.0, depth) *
-    exp(-depth * 0.07) * max(uSunDirection.y, 0.0) * 1.6;
+  lit += albedo * uLightColor * caustic * shadow * detail * smoothstep(0.0, 2.0, depth) *
+    exp(-depth * 0.07) * max(uLightDirection.y, 0.0) * 1.6;
 
   gl_FragColor = vec4(applyAtmosphere(lit, vWorldPosition), 1.0);
 }

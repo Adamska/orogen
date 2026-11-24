@@ -16,6 +16,7 @@ export interface WorldStore {
   seed: number;
   origin: WorldOrigin;
   autoOrbit: boolean;
+  timeLapse: boolean;
   commandOpen: boolean;
   directing: boolean;
   flightToken: number;
@@ -28,6 +29,7 @@ export interface WorldStore {
   regenerateSeed: () => void;
   toggleAutoOrbit: () => void;
   setAutoOrbit: (autoOrbit: boolean) => void;
+  toggleTimeLapse: () => void;
   setCommandOpen: (commandOpen: boolean) => void;
 }
 
@@ -38,6 +40,7 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
   seed: DEFAULT_SEED,
   origin: 'preset',
   autoOrbit: true,
+  timeLapse: false,
   commandOpen: false,
   directing: false,
   flightToken: 0,
@@ -80,5 +83,6 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
   regenerateSeed: () => set({ seed: Math.floor(Math.random() * SEED_SPACE) }),
   toggleAutoOrbit: () => set((state) => ({ autoOrbit: !state.autoOrbit })),
   setAutoOrbit: (autoOrbit) => set({ autoOrbit }),
+  toggleTimeLapse: () => set((state) => ({ timeLapse: !state.timeLapse })),
   setCommandOpen: (commandOpen) => set({ commandOpen }),
 }));

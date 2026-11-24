@@ -13,7 +13,8 @@ import { TerrainWorld } from './TerrainWorld';
 import { useSceneReady } from './useSceneReady';
 import { useTerrainSurface } from './useTerrainSurface';
 import { frameStats } from './frameStats';
-import { stepWorld, syncWorldTargets } from './worldRuntime';
+import { beginDayCycle, endDayCycle } from './dayCycle';
+import { stepWorld, syncWorldTargets, worldRuntime } from './worldRuntime';
 
 const ORBIT_TARGET: [number, number, number] = [0, 58, 0];
 
@@ -33,6 +34,13 @@ export function WorldScene({ onReady }: { onReady?: () => void }) {
     syncWorldTargets(useWorldStore.getState().world);
     return useWorldStore.subscribe((state, previous) => {
       if (state.world !== previous.world) syncWorldTargets(state.world);
+      if (state.timeLapse !== previous.timeLapse) {
+        if (state.timeLapse) {
+          beginDayCycle({ elevation: worldRuntime.sunElevation, azimuth: worldRuntime.sunAzimuth });
+        } else {
+          endDayCycle();
+        }
+      }
     });
   }, []);
 

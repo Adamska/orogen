@@ -1,4 +1,6 @@
 uniform bool receiveShadow;
+uniform vec3 uLightDirection;
+uniform vec3 uLightColor;
 
 #include <shadowmap_pars_fragment>
 #include <shadowmask_pars_fragment>

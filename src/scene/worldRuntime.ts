@@ -1,5 +1,6 @@
-import { Color, MathUtils } from 'three';
+import { Color, MathUtils, Vector3 } from 'three';
 import type { BiomePalette, WorldConfig } from '@/engine/worldConfig';
+import { advanceDayCycle, dayCycle, type SunPosition } from './dayCycle';
 import { worldUniforms } from './worldUniforms';
 
 const TRANSITION_RATE = 2.6;
@@ -8,6 +9,9 @@ const FOLIAGE_RATE = 5.5;
 const SUN_INTENSITY = 1.7;
 const LOW_SUN = new Color(1.0, 0.54, 0.26);
 const HIGH_SUN = new Color(1.0, 0.95, 0.86);
+const MOONLIGHT = new Color(0.5, 0.62, 0.95).multiplyScalar(0.36);
+const MOON_SWITCH_HEIGHT = -0.065;
+const MOON_TILT = new Vector3(0.2, 0, 0.35);
 
 const PALETTE_UNIFORMS = {
   sand: worldUniforms.uSandColor,
@@ -45,6 +49,7 @@ export const worldRuntime = {
 };
 
 const horizonTint = new Color();
+const cycleSun: SunPosition = { elevation: 0, azimuth: 0 };
 
 export function syncWorldTargets(world: WorldConfig): void {
   target.amplitude = world.terrain.amplitude;
@@ -86,6 +91,21 @@ function updateSun(): void {
     .lerp(HIGH_SUN, clarity)
     .lerp(horizonTint, 0.25 * (1 - clarity))
     .multiplyScalar(intensity);
+
+  const sun = worldUniforms.uSunDirection.value;
+  const night = MathUtils.smoothstep(-height, 0.05, 0.22);
+  worldUniforms.uNight.value = night;
+  worldUniforms.uMoonDirection.value
+    .set(-sun.x, Math.abs(sun.y) * 0.85 + 0.16, -sun.z)
+    .add(MOON_TILT)
+    .normalize();
+  if (height > MOON_SWITCH_HEIGHT) {
+    worldUniforms.uLightDirection.value.copy(sun);
+    worldUniforms.uLightColor.value.copy(worldUniforms.uSunColor.value);
+  } else {
+    worldUniforms.uLightDirection.value.copy(worldUniforms.uMoonDirection.value);
+    worldUniforms.uLightColor.value.copy(MOONLIGHT).multiplyScalar(night);
+  }
 }
 
 export function stepWorld(delta: number): void {
@@ -103,9 +123,12 @@ export function stepWorld(delta: number): void {
   worldUniforms.uSkyHorizon.value.lerp(target.skyHorizon, blend);
   for (const key of PALETTE_KEYS) PALETTE_UNIFORMS[key].value.lerp(target.palette[key], blend);
 
-  const turn = ((target.sunAzimuth - worldRuntime.sunAzimuth + 540) % 360) - 180;
+  const sunTarget = dayCycle.active
+    ? advanceDayCycle(step, cycleSun)
+    : { elevation: target.sunElevation, azimuth: target.sunAzimuth };
+  const turn = ((sunTarget.azimuth - worldRuntime.sunAzimuth + 540) % 360) - 180;
   worldRuntime.sunAzimuth = (worldRuntime.sunAzimuth + turn * blend + 360) % 360;
-  worldRuntime.sunElevation = lerp(worldRuntime.sunElevation, target.sunElevation, blend);
+  worldRuntime.sunElevation = lerp(worldRuntime.sunElevation, sunTarget.elevation, blend);
   updateSun();
 
   if (worldRuntime.morphProgress < 1) {

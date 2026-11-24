@@ -4,9 +4,9 @@ import { useState, useSyncExternalStore } from 'react';
 import { WORLD_LIMITS } from '@/engine/worldConfig';
 import { useWorldStore } from '@/store/useWorldStore';
 import { GlassPanel } from './GlassPanel';
-import { ChevronIcon, OrbitIcon, ShuffleIcon } from './icons';
+import { ChevronIcon } from './icons';
 import { RangeField } from './RangeField';
-import { ShareButton } from './ShareButton';
+import { WorldActions } from './WorldActions';
 
 const WIDE_VIEWPORT_QUERY = '(min-width: 640px)';
 
@@ -32,12 +32,10 @@ export function EnvironmentControls() {
   const atmosphere = useWorldStore((state) => state.world.atmosphere);
   const waterLevel = useWorldStore((state) => state.world.waterLevel);
   const foliageDensity = useWorldStore((state) => state.world.foliageDensity);
-  const autoOrbit = useWorldStore((state) => state.autoOrbit);
+  const timeLapse = useWorldStore((state) => state.timeLapse);
   const setAtmosphere = useWorldStore((state) => state.setAtmosphere);
   const setWaterLevel = useWorldStore((state) => state.setWaterLevel);
   const setFoliageDensity = useWorldStore((state) => state.setFoliageDensity);
-  const regenerateSeed = useWorldStore((state) => state.regenerateSeed);
-  const toggleAutoOrbit = useWorldStore((state) => state.toggleAutoOrbit);
 
   return (
     <GlassPanel className="w-60 rounded-2xl">
@@ -59,6 +57,7 @@ export function EnvironmentControls() {
             {...WORLD_LIMITS.sunElevation}
             step={0.5}
             format={degrees}
+            disabled={timeLapse}
             onChange={(sunElevation) => setAtmosphere({ sunElevation })}
           />
           <RangeField
@@ -67,6 +66,7 @@ export function EnvironmentControls() {
             {...WORLD_LIMITS.sunAzimuth}
             step={1}
             format={degrees}
+            disabled={timeLapse}
             onChange={(sunAzimuth) => setAtmosphere({ sunAzimuth })}
           />
           <RangeField
@@ -94,30 +94,7 @@ export function EnvironmentControls() {
             onChange={setFoliageDensity}
           />
 
-          <div className="flex gap-2 pt-1">
-            <button
-              type="button"
-              onClick={regenerateSeed}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-white/20"
-            >
-              <ShuffleIcon />
-              New seed
-            </button>
-            <button
-              type="button"
-              onClick={toggleAutoOrbit}
-              aria-pressed={autoOrbit}
-              aria-label="Toggle automatic camera orbit"
-              className={`flex items-center justify-center rounded-xl border px-3 py-2 transition-colors ${
-                autoOrbit
-                  ? 'border-white/40 bg-white/25 text-white'
-                  : 'border-white/15 bg-white/5 text-white/50 hover:text-white'
-              }`}
-            >
-              <OrbitIcon />
-            </button>
-            <ShareButton />
-          </div>
+          <WorldActions />
         </div>
       )}
     </GlassPanel>
