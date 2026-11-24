@@ -3,7 +3,7 @@
 import { useFrame } from '@react-three/fiber';
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import type { Mesh } from 'three';
-import { buildFieldTexture, buildOceanGeometry, buildTerrainGeometry } from '@/engine/terrainBuilder';
+import { buildOceanGeometry, createFieldTexture, createTerrainGeometry } from '@/engine/terrainBuilder';
 import { TERRAIN_SIZE } from '@/engine/worldConfig';
 import { terrainShader, waterShader } from '@/shaders';
 import { createDepthMaterial, createLitMaterial } from './materials';
@@ -25,10 +25,11 @@ function releaseFieldTextures(): void {
 export function TerrainWorld({ surface }: { surface: TerrainSurface }) {
   const waterRef = useRef<Mesh>(null);
 
-  const terrainGeometry = useMemo(
-    () => buildTerrainGeometry(surface.field, surface.previousElevations ?? undefined),
-    [surface],
-  );
+  const terrainGeometry = useMemo(() => {
+    const { field, buffers, previousElevations } = surface;
+    const from = previousElevations?.length === field.elevations.length ? previousElevations : field.elevations;
+    return createTerrainGeometry(buffers, from.slice());
+  }, [surface]);
   const oceanGeometry = useMemo(() => buildOceanGeometry(OCEAN_RESOLUTION, OCEAN_DETAIL_SIZE), []);
   const materials = useMemo(
     () => ({
@@ -40,7 +41,7 @@ export function TerrainWorld({ surface }: { surface: TerrainSurface }) {
   );
 
   useLayoutEffect(() => {
-    const texture = buildFieldTexture(surface.field);
+    const texture = createFieldTexture(surface.buffers.texels, surface.field.resolution);
     const outgoing = worldUniforms.uElevationTo.value;
     const stale = worldUniforms.uElevationFrom.value;
     worldUniforms.uElevationFrom.value = outgoing ?? texture;

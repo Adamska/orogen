@@ -40,17 +40,16 @@ function buildGridIndices(resolution: number, elevations?: Float32Array): Uint32
   return indices;
 }
 
-export function buildTerrainGeometry(
-  field: ElevationField,
-  previousElevations?: Float32Array,
-): BufferGeometry {
-  const { resolution, size, elevations } = field;
-  const last = resolution - 1;
-  const vertexCount = resolution * resolution;
-  const positions = new Float32Array(vertexCount * 3);
-  const fromElevations =
-    previousElevations?.length === vertexCount ? previousElevations : elevations;
+export interface SurfaceBuffers {
+  readonly positions: Float32Array;
+  readonly indices: Uint32Array;
+  readonly texels: Uint16Array;
+}
 
+export function buildSurfaceBuffers(field: ElevationField): SurfaceBuffers {
+  const { resolution, size, elevations, gradients, openness } = field;
+  const last = resolution - 1;
+  const positions = new Float32Array(resolution * resolution * 3);
   for (let row = 0; row < resolution; row += 1) {
     const z = axisPosition(row, last, size);
     for (let column = 0; column < resolution; column += 1) {
@@ -61,10 +60,26 @@ export function buildTerrainGeometry(
     }
   }
 
+  const texels = new Uint16Array(resolution * resolution * 4);
+  for (let index = 0; index < elevations.length; index += 1) {
+    const texel = index * 4;
+    texels[texel] = DataUtils.toHalfFloat(elevations[index]);
+    texels[texel + 1] = DataUtils.toHalfFloat(gradients[index * 2]);
+    texels[texel + 2] = DataUtils.toHalfFloat(gradients[index * 2 + 1]);
+    texels[texel + 3] = DataUtils.toHalfFloat(openness[index]);
+  }
+
+  return { positions, indices: buildGridIndices(resolution, elevations), texels };
+}
+
+export function createTerrainGeometry(
+  buffers: SurfaceBuffers,
+  fromElevations: Float32Array,
+): BufferGeometry {
   const geometry = new BufferGeometry();
-  geometry.setAttribute('position', new BufferAttribute(positions, 3));
-  geometry.setAttribute('aFromElevation', new BufferAttribute(new Float32Array(fromElevations), 1));
-  geometry.setIndex(new BufferAttribute(buildGridIndices(resolution, elevations), 1));
+  geometry.setAttribute('position', new BufferAttribute(buffers.positions, 3));
+  geometry.setAttribute('aFromElevation', new BufferAttribute(fromElevations, 1));
+  geometry.setIndex(new BufferAttribute(buffers.indices, 1));
   geometry.boundingSphere = new Sphere(new Vector3(0, 0, 0), HORIZON_RADIUS * Math.SQRT2);
   return geometry;
 }
@@ -87,16 +102,7 @@ export function buildOceanGeometry(resolution: number, size: number): BufferGeom
   return geometry;
 }
 
-export function buildFieldTexture(field: ElevationField): DataTexture {
-  const { resolution, elevations, gradients, openness } = field;
-  const texels = new Uint16Array(resolution * resolution * 4);
-  for (let index = 0; index < elevations.length; index += 1) {
-    const texel = index * 4;
-    texels[texel] = DataUtils.toHalfFloat(elevations[index]);
-    texels[texel + 1] = DataUtils.toHalfFloat(gradients[index * 2]);
-    texels[texel + 2] = DataUtils.toHalfFloat(gradients[index * 2 + 1]);
-    texels[texel + 3] = DataUtils.toHalfFloat(openness[index]);
-  }
+export function createFieldTexture(texels: Uint16Array, resolution: number): DataTexture {
   const texture = new DataTexture(texels, resolution, resolution, RGBAFormat, HalfFloatType);
   texture.colorSpace = NoColorSpace;
   texture.magFilter = LinearFilter;

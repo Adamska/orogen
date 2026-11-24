@@ -1,14 +1,15 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { BufferGeometry, InstancedMesh, ShaderMaterial } from 'three';
 import type { ElevationField } from '@/engine/elevationField';
 import {
   BOULDER_CAPACITY,
   TREE_CAPACITY,
-  scatterBiome,
+  type BiomeLayout,
   type ScatterLayout,
 } from '@/engine/scatterPlacement';
+import { requestScatter } from '@/engine/terrainWorkerClient';
 import { scatterShader } from '@/shaders';
 import { useWorldStore } from '@/store/useWorldStore';
 import { createDepthMaterial, createLitMaterial } from './materials';
@@ -57,10 +58,17 @@ export function BiomeScatter({ field }: { field: ElevationField }) {
   const snowLine = useWorldStore((state) => state.world.snowLine);
   const foliageDensity = useWorldStore((state) => state.world.foliageDensity);
 
-  const layout = useMemo(
-    () => scatterBiome(field, { amplitude, snowLine }),
-    [field, amplitude, snowLine],
-  );
+  const [layout, setLayout] = useState<BiomeLayout | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void requestScatter(field.params, { amplitude, snowLine }).then((next) => {
+      if (!cancelled) setLayout(next);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [field, amplitude, snowLine]);
   const assets = useMemo(() => {
     const sway = { SCATTER_SWAY: '' };
     return {
@@ -79,6 +87,8 @@ export function BiomeScatter({ field }: { field: ElevationField }) {
     },
     [assets],
   );
+
+  if (layout === null) return null;
 
   return (
     <>

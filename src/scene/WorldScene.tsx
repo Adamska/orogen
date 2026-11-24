@@ -8,14 +8,16 @@ import { AtmosphereRig } from './AtmosphereRig';
 import { BiomeScatter } from './BiomeScatter';
 import { PostProcessingStack } from './PostProcessingStack';
 import { TerrainWorld } from './TerrainWorld';
+import { useSceneReady } from './useSceneReady';
 import { useTerrainSurface } from './useTerrainSurface';
 import { frameStats } from './frameStats';
 import { stepWorld, syncWorldTargets } from './worldRuntime';
 
 const ORBIT_TARGET: [number, number, number] = [0, 58, 0];
 
-export function WorldScene() {
+export function WorldScene({ onReady }: { onReady?: () => void }) {
   const surface = useTerrainSurface();
+  useSceneReady(surface !== null, onReady);
   const autoOrbit = useWorldStore((state) => state.autoOrbit);
   const info = useThree((state) => state.gl.info);
 
@@ -37,8 +39,8 @@ export function WorldScene() {
   return (
     <>
       <AtmosphereRig />
-      <TerrainWorld surface={surface} />
-      <BiomeScatter field={surface.field} />
+      {surface && <TerrainWorld surface={surface} />}
+      {surface && <BiomeScatter field={surface.field} />}
       <OrbitControls
         makeDefault
         enablePan={false}

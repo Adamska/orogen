@@ -19,10 +19,9 @@ export default function WorldCanvas({ onReady }: WorldCanvasProps) {
       camera={{ fov: 40, near: 2, far: 26000, position: CAMERA_POSITION }}
       onCreated={({ gl }) => {
         gl.info.autoReset = false;
-        requestAnimationFrame(() => onReady?.());
       }}
     >
-      <WorldScene />
+      <WorldScene onReady={onReady} />
     </Canvas>
   );
 }

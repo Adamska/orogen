@@ -1,64 +1,58 @@
 import { useEffect, useState } from 'react';
-import { buildElevationField, type ElevationField, type FieldParams } from '@/engine/elevationField';
+import type { ElevationField, FieldParams } from '@/engine/elevationField';
+import type { SurfaceBuffers } from '@/engine/terrainBuilder';
+import { sameFieldParams } from '@/engine/terrainProtocol';
+import { requestSurface } from '@/engine/terrainWorkerClient';
 import { useWorldStore } from '@/store/useWorldStore';
 import { worldRuntime } from './worldRuntime';
 
 export interface TerrainSurface {
   readonly field: ElevationField;
+  readonly buffers: SurfaceBuffers;
   readonly previousElevations: Float32Array | null;
 }
 
+const REQUEST_DEBOUNCE_MS = 90;
 const FOLIAGE_RETREAT_MS = 380;
 const MORPH_POLL_MS = 120;
 
-function matches(a: FieldParams, b: FieldParams): boolean {
-  return (
-    a.seed === b.seed &&
-    a.ridgeSharpness === b.ridgeSharpness &&
-    a.warpIntensity === b.warpIntensity &&
-    a.valleyDepth === b.valleyDepth
-  );
-}
+const wait = (milliseconds: number) =>
+  new Promise<void>((resolve) => window.setTimeout(resolve, milliseconds));
 
-function readParams(): FieldParams {
-  const { seed, world } = useWorldStore.getState();
-  return {
-    seed,
-    ridgeSharpness: world.terrain.ridgeSharpness,
-    warpIntensity: world.terrain.warpIntensity,
-    valleyDepth: world.terrain.valleyDepth,
-  };
-}
-
-export function useTerrainSurface(): TerrainSurface {
+export function useTerrainSurface(): TerrainSurface | null {
   const seed = useWorldStore((state) => state.seed);
   const ridgeSharpness = useWorldStore((state) => state.world.terrain.ridgeSharpness);
   const warpIntensity = useWorldStore((state) => state.world.terrain.warpIntensity);
   const valleyDepth = useWorldStore((state) => state.world.terrain.valleyDepth);
-  const [surface, setSurface] = useState<TerrainSurface>(() => ({
-    field: buildElevationField(readParams()),
-    previousElevations: null,
-  }));
+  const [surface, setSurface] = useState<TerrainSurface | null>(null);
 
   useEffect(() => {
     const requested: FieldParams = { seed, ridgeSharpness, warpIntensity, valleyDepth };
-    if (matches(surface.field.params, requested)) {
+    if (surface !== null && sameFieldParams(surface.field.params, requested)) {
       worldRuntime.rebuildPending = false;
       return;
     }
 
-    worldRuntime.rebuildPending = true;
-    let timer = window.setTimeout(function rebuild() {
-      if (worldRuntime.morphProgress < 1) {
-        timer = window.setTimeout(rebuild, MORPH_POLL_MS);
-        return;
-      }
-      setSurface((current) => ({
-        field: buildElevationField(requested),
-        previousElevations: current.field.elevations,
-      }));
-    }, FOLIAGE_RETREAT_MS);
-    return () => window.clearTimeout(timer);
+    const initial = surface === null;
+    let cancelled = false;
+    worldRuntime.rebuildPending = !initial;
+
+    const settle = async () => {
+      if (!initial) await wait(REQUEST_DEBOUNCE_MS);
+      if (cancelled) return;
+      const [built] = await Promise.all([
+        requestSurface(requested),
+        wait(initial ? 0 : FOLIAGE_RETREAT_MS),
+      ]);
+      while (!cancelled && worldRuntime.morphProgress < 1) await wait(MORPH_POLL_MS);
+      if (cancelled) return;
+      setSurface((current) => ({ ...built, previousElevations: current?.field.elevations ?? null }));
+    };
+    void settle();
+
+    return () => {
+      cancelled = true;
+    };
   }, [seed, ridgeSharpness, warpIntensity, valleyDepth, surface]);
 
   return surface;
