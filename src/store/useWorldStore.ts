@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { TerraformPreset } from '@/ai/presets';
+import { describeTerraform } from '@/ai/directorNotes';
 import { requestTerraform } from '@/ai/requestTerraform';
 import type { WorldLink } from './worldLink';
 import {
@@ -12,6 +13,11 @@ import {
 
 export type WorldOrigin = 'preset' | 'model' | 'local' | 'shared';
 
+export interface DirectorLog {
+  readonly id: number;
+  readonly lines: readonly string[];
+}
+
 export interface WorldStore {
   world: WorldConfig;
   seed: number;
@@ -21,6 +27,7 @@ export interface WorldStore {
   commandOpen: boolean;
   directing: boolean;
   flightToken: number;
+  directorLog: DirectorLog | null;
   applyPreset: (preset: TerraformPreset) => void;
   loadShared: (link: WorldLink) => void;
   direct: (prompt: string) => Promise<void>;
@@ -46,6 +53,7 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
   commandOpen: false,
   directing: false,
   flightToken: 0,
+  directorLog: null,
   applyPreset: (preset) =>
     set((state) => ({
       world: preset.directive,
@@ -53,6 +61,7 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
       origin: 'preset',
       commandOpen: false,
       flightToken: state.flightToken + 1,
+      directorLog: { id: state.flightToken + 1, lines: describeTerraform(state.world, preset.directive) },
     })),
   loadShared: ({ seed, world }) =>
     set((state) => ({
@@ -73,6 +82,7 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
       directing: false,
       commandOpen: false,
       flightToken: state.flightToken + 1,
+      directorLog: { id: state.flightToken + 1, lines: describeTerraform(state.world, directive) },
     }));
   },
   setAtmosphere: (patch) =>

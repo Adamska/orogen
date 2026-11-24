@@ -1,4 +1,5 @@
 import { CommandBar } from './CommandBar';
+import { DirectorLog } from './DirectorLog';
 import { EnvironmentControls } from './EnvironmentControls';
 import { TelemetryBadge } from './TelemetryBadge';
 import { WorldLinkSync } from './WorldLinkSync';
@@ -17,7 +18,8 @@ export function HudOverlay() {
       <div className="absolute bottom-20 right-4 sm:bottom-auto sm:right-6 sm:top-1/2 sm:-translate-y-1/2">
         <EnvironmentControls />
       </div>
-      <div className="absolute inset-x-0 bottom-5 flex justify-center px-4 sm:bottom-7">
+      <div className="absolute inset-x-0 bottom-5 flex flex-col items-center gap-3 px-4 sm:bottom-7">
+        <DirectorLog />
         <CommandBar />
       </div>
     </div>
