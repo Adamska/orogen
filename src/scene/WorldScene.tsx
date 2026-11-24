@@ -7,6 +7,7 @@ import { useWorldStore } from '@/store/useWorldStore';
 import { AdaptiveQuality } from './AdaptiveQuality';
 import { AtmosphereRig } from './AtmosphereRig';
 import { BiomeScatter } from './BiomeScatter';
+import { CinematicDirector } from './CinematicDirector';
 import { PostProcessingStack } from './PostProcessingStack';
 import { TerrainWorld } from './TerrainWorld';
 import { useSceneReady } from './useSceneReady';
@@ -64,6 +65,7 @@ export function WorldScene({ onReady }: { onReady?: () => void }) {
         maxPolarAngle={Math.PI * 0.478}
         target={ORBIT_TARGET}
       />
+      <CinematicDirector />
       <PostProcessingStack />
     </>
   );

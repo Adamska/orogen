@@ -41,6 +41,7 @@ export const worldRuntime = {
   rebuildPending: false,
   sunElevation: 45,
   sunAzimuth: 0,
+  targetSunAzimuth: 0,
 };
 
 const horizonTint = new Color();
@@ -52,6 +53,7 @@ export function syncWorldTargets(world: WorldConfig): void {
   target.fogDensity = world.atmosphere.fogDensity;
   target.sunElevation = world.atmosphere.sunElevation;
   target.sunAzimuth = world.atmosphere.sunAzimuth;
+  worldRuntime.targetSunAzimuth = world.atmosphere.sunAzimuth;
   target.skyZenith.set(world.atmosphere.skyZenith);
   target.skyHorizon.set(world.atmosphere.skyHorizon);
   for (const key of PALETTE_KEYS) target.palette[key].set(world.palette[key]);

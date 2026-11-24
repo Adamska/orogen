@@ -18,6 +18,7 @@ export interface WorldStore {
   autoOrbit: boolean;
   commandOpen: boolean;
   directing: boolean;
+  flightToken: number;
   applyPreset: (preset: TerraformPreset) => void;
   loadShared: (link: WorldLink) => void;
   direct: (prompt: string) => Promise<void>;
@@ -39,14 +40,35 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
   autoOrbit: true,
   commandOpen: false,
   directing: false,
+  flightToken: 0,
   applyPreset: (preset) =>
-    set({ world: preset.directive, seed: preset.seed, origin: 'preset', commandOpen: false }),
-  loadShared: ({ seed, world }) => set({ world, seed, origin: 'shared', commandOpen: false }),
+    set((state) => ({
+      world: preset.directive,
+      seed: preset.seed,
+      origin: 'preset',
+      commandOpen: false,
+      flightToken: state.flightToken + 1,
+    })),
+  loadShared: ({ seed, world }) =>
+    set((state) => ({
+      world,
+      seed,
+      origin: 'shared',
+      commandOpen: false,
+      flightToken: state.flightToken + 1,
+    })),
   direct: async (prompt) => {
     if (get().directing) return;
     set({ directing: true });
     const { directive, seed, source } = await requestTerraform(prompt);
-    set({ world: directive, seed, origin: source, directing: false, commandOpen: false });
+    set((state) => ({
+      world: directive,
+      seed,
+      origin: source,
+      directing: false,
+      commandOpen: false,
+      flightToken: state.flightToken + 1,
+    }));
   },
   setAtmosphere: (patch) =>
     set((state) => ({
