@@ -30,6 +30,7 @@ export interface WorldStore {
   directorLog: DirectorLog | null;
   applyPreset: (preset: TerraformPreset) => void;
   loadShared: (link: WorldLink) => void;
+  revisit: (link: WorldLink) => void;
   direct: (prompt: string) => Promise<void>;
   setAtmosphere: (patch: Partial<AtmosphereState>) => void;
   setWaterLevel: (waterLevel: number) => void;
@@ -70,6 +71,15 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
       origin: 'shared',
       commandOpen: false,
       flightToken: state.flightToken + 1,
+    })),
+  revisit: ({ seed, world }) =>
+    set((state) => ({
+      world,
+      seed,
+      origin: 'preset',
+      commandOpen: false,
+      flightToken: state.flightToken + 1,
+      directorLog: { id: state.flightToken + 1, lines: describeTerraform(state.world, world) },
     })),
   direct: async (prompt) => {
     if (get().directing) return;

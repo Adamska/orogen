@@ -8,6 +8,7 @@ import { AdaptiveQuality } from './AdaptiveQuality';
 import { AtmosphereRig } from './AtmosphereRig';
 import { BiomeScatter } from './BiomeScatter';
 import { CinematicDirector } from './CinematicDirector';
+import { HistoryCapture } from './HistoryCapture';
 import { PostProcessingStack } from './PostProcessingStack';
 import { TerrainWorld } from './TerrainWorld';
 import { useSceneReady } from './useSceneReady';
@@ -76,6 +77,7 @@ export function WorldScene({ onReady }: { onReady?: () => void }) {
       />
       <WeatherSystem />
       <CinematicDirector />
+      <HistoryCapture />
       <PostProcessingStack />
     </>
   );
