@@ -4,6 +4,7 @@ import { OrbitControls } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect } from 'react';
 import { useWorldStore } from '@/store/useWorldStore';
+import { AdaptiveQuality } from './AdaptiveQuality';
 import { AtmosphereRig } from './AtmosphereRig';
 import { BiomeScatter } from './BiomeScatter';
 import { PostProcessingStack } from './PostProcessingStack';
@@ -22,6 +23,12 @@ export function WorldScene({ onReady }: { onReady?: () => void }) {
   const info = useThree((state) => state.gl.info);
 
   useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      useWorldStore.getState().setAutoOrbit(false);
+    }
+  }, []);
+
+  useEffect(() => {
     syncWorldTargets(useWorldStore.getState().world);
     return useWorldStore.subscribe((state, previous) => {
       if (state.world !== previous.world) syncWorldTargets(state.world);
@@ -38,6 +45,7 @@ export function WorldScene({ onReady }: { onReady?: () => void }) {
 
   return (
     <>
+      <AdaptiveQuality />
       <AtmosphereRig />
       {surface && <TerrainWorld surface={surface} />}
       {surface && <BiomeScatter field={surface.field} />}

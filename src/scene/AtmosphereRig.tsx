@@ -3,17 +3,26 @@
 import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import { BackSide, ShaderMaterial, type DirectionalLight, type HemisphereLight } from 'three';
+import { useQualityProfile } from '@/store/useQualityStore';
 import { TERRAIN_SIZE } from '@/engine/worldConfig';
 import { skyShader } from '@/shaders';
 import { worldUniforms } from './worldUniforms';
 
 const SUN_DISTANCE = 1800;
 const SHADOW_EXTENT = TERRAIN_SIZE * 0.74;
-const SHADOW_MAP_SIZE = 4096;
 
 export function AtmosphereRig() {
   const sunRef = useRef<DirectionalLight>(null);
   const fillRef = useRef<HemisphereLight>(null);
+  const { shadowMapSize } = useQualityProfile();
+
+  useEffect(() => {
+    const shadow = sunRef.current?.shadow;
+    if (!shadow || shadow.mapSize.x === shadowMapSize) return;
+    shadow.mapSize.set(shadowMapSize, shadowMapSize);
+    shadow.map?.dispose();
+    shadow.map = null;
+  }, [shadowMapSize]);
 
   const skyMaterial = useMemo(
     () =>
@@ -54,7 +63,7 @@ export function AtmosphereRig() {
       <directionalLight
         ref={sunRef}
         castShadow
-        shadow-mapSize={[SHADOW_MAP_SIZE, SHADOW_MAP_SIZE]}
+        shadow-mapSize={[shadowMapSize, shadowMapSize]}
         shadow-bias={-0.0006}
         shadow-normalBias={1.6}
         shadow-radius={3.5}

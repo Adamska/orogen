@@ -3,10 +3,12 @@
 import { Bloom, EffectComposer, ToneMapping, Vignette } from '@react-three/postprocessing';
 import { ToneMappingMode } from 'postprocessing';
 import { HalfFloatType } from 'three';
+import { useQualityProfile } from '@/store/useQualityStore';
 
 export function PostProcessingStack() {
+  const { multisampling } = useQualityProfile();
   return (
-    <EffectComposer multisampling={4} frameBufferType={HalfFloatType}>
+    <EffectComposer multisampling={multisampling} frameBufferType={HalfFloatType}>
       <Bloom
         mipmapBlur
         luminanceThreshold={1.05}

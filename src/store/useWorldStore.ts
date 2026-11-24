@@ -24,6 +24,7 @@ export interface WorldStore {
   setFoliageDensity: (foliageDensity: number) => void;
   regenerateSeed: () => void;
   toggleAutoOrbit: () => void;
+  setAutoOrbit: (autoOrbit: boolean) => void;
   setCommandOpen: (commandOpen: boolean) => void;
 }
 
@@ -53,5 +54,6 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
     set((state) => ({ world: { ...state.world, foliageDensity } })),
   regenerateSeed: () => set({ seed: Math.floor(Math.random() * SEED_SPACE) }),
   toggleAutoOrbit: () => set((state) => ({ autoOrbit: !state.autoOrbit })),
+  setAutoOrbit: (autoOrbit) => set({ autoOrbit }),
   setCommandOpen: (commandOpen) => set({ commandOpen }),
 }));

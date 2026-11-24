@@ -11,6 +11,7 @@ import {
 } from '@/engine/scatterPlacement';
 import { requestScatter } from '@/engine/terrainWorkerClient';
 import { scatterShader } from '@/shaders';
+import { useQualityProfile } from '@/store/useQualityStore';
 import { useWorldStore } from '@/store/useWorldStore';
 import { createDepthMaterial, createLitMaterial } from './materials';
 import { createBoulderGeometry, createConiferGeometry } from './scatterGeometry';
@@ -57,6 +58,7 @@ export function BiomeScatter({ field }: { field: ElevationField }) {
   const amplitude = useWorldStore((state) => state.world.terrain.amplitude);
   const snowLine = useWorldStore((state) => state.world.snowLine);
   const foliageDensity = useWorldStore((state) => state.world.foliageDensity);
+  const { foliageScale } = useQualityProfile();
 
   const [layout, setLayout] = useState<BiomeLayout | null>(null);
 
@@ -98,7 +100,7 @@ export function BiomeScatter({ field }: { field: ElevationField }) {
         depthMaterial={assets.treeDepth}
         layout={layout.trees}
         capacity={TREE_CAPACITY}
-        density={foliageDensity}
+        density={foliageDensity * foliageScale}
       />
       <ScatterLayer
         geometry={assets.boulder}
@@ -106,7 +108,7 @@ export function BiomeScatter({ field }: { field: ElevationField }) {
         depthMaterial={assets.boulderDepth}
         layout={layout.boulders}
         capacity={BOULDER_CAPACITY}
-        density={0.35 + foliageDensity * 0.65}
+        density={(0.35 + foliageDensity * 0.65) * foliageScale}
       />
     </>
   );

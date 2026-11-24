@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { frameStats } from '@/scene/frameStats';
+import { useQualityStore } from '@/store/useQualityStore';
 import { useWorldStore } from '@/store/useWorldStore';
 import { GlassPanel } from './GlassPanel';
 
@@ -36,6 +37,7 @@ function Metric({ label, value }: { label: string; value: string }) {
 
 export function TelemetryBadge() {
   const seed = useWorldStore((state) => state.seed);
+  const tier = useQualityStore((state) => state.tier);
   const [sample, setSample] = useState<TelemetrySample>({ fps: 0, triangles: 0, drawCalls: 0 });
 
   useEffect(() => {
@@ -64,6 +66,7 @@ export function TelemetryBadge() {
       <span className="hidden items-center gap-4 sm:flex">
         <Metric label="tris" value={formatCount(sample.triangles)} />
         <Metric label="calls" value={String(sample.drawCalls)} />
+        <Metric label="quality" value={tier.toUpperCase()} />
       </span>
       <Metric label="seed" value={String(seed).padStart(5, '0')} />
     </GlassPanel>
