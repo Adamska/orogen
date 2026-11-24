@@ -55,5 +55,5 @@ export function surfaceTransferables({ field, texels, mesh }: SurfaceResult): Tr
 }
 
 export function layoutTransferables(layout: BiomeLayout): Transferable[] {
-  return Object.values(layout).flatMap((layer) => [layer.matrices.buffer, layer.placements.buffer]);
+  return Object.values(layout).flatMap((layer) => [layer.matrices.buffer, layer.tileStarts.buffer]);
 }

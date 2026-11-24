@@ -6,11 +6,12 @@ import type { VegetationKind } from './worldConfig';
 
 export const TREE_CAPACITY = 6500;
 export const BOULDER_CAPACITY = 1100;
+export const SCATTER_TILES = 4;
 
 export interface ScatterLayout {
   readonly count: number;
   readonly matrices: Float32Array;
-  readonly placements: Float32Array;
+  readonly tileStarts: Uint32Array;
 }
 
 export interface BiomeLayout {
@@ -53,6 +54,26 @@ const ATTEMPTS_PER_INSTANCE = 14;
 const COVERAGE = 0.47;
 const MAX_TREE_EXPOSURE = 0.8;
 
+function groupIntoTiles(matrices: Float32Array, count: number, size: number): ScatterLayout {
+  const tileCount = SCATTER_TILES * SCATTER_TILES;
+  const tileOf = (instance: number) => {
+    const column = Math.floor((matrices[instance * 16 + 12] / size + 0.5) * SCATTER_TILES);
+    const row = Math.floor((matrices[instance * 16 + 14] / size + 0.5) * SCATTER_TILES);
+    const clamp = (value: number) => Math.min(SCATTER_TILES - 1, Math.max(0, value));
+    return clamp(row) * SCATTER_TILES + clamp(column);
+  };
+  const tileStarts = new Uint32Array(tileCount + 1);
+  for (let instance = 0; instance < count; instance += 1) tileStarts[tileOf(instance) + 1] += 1;
+  for (let tile = 0; tile < tileCount; tile += 1) tileStarts[tile + 1] += tileStarts[tile];
+  const cursor = tileStarts.slice(0, tileCount);
+  const sorted = new Float32Array(matrices.length);
+  for (let instance = 0; instance < count; instance += 1) {
+    const target = cursor[tileOf(instance)]++;
+    sorted.set(matrices.subarray(instance * 16, instance * 16 + 16), target * 16);
+  }
+  return { count, matrices: sorted, tileStarts };
+}
+
 function populate(
   field: ElevationField,
   rules: ScatterRules,
@@ -62,7 +83,6 @@ function populate(
 ): ScatterLayout {
   const random = mulberry32(deriveSeed(field.params.seed, salt));
   const matrices = new Float32Array(capacity * 16);
-  const placements = new Float32Array(capacity * 3);
   const sample: FieldSample = { elevation: 0, gradientX: 0, gradientZ: 0, openness: 0 };
   const matrix = new Matrix4();
   const position = new Vector3();
@@ -87,15 +107,12 @@ function populate(
 
     euler.set((random() - 0.5) * placed.tilt, random() * Math.PI * 2, (random() - 0.5) * placed.tilt);
     rotation.setFromEuler(euler);
-    position.set(x, 0, z);
+    position.set(x, -placed.sink, z);
     matrix.compose(position, rotation, placed.scale);
     matrix.toArray(matrices, count * 16);
-    placements[count * 3] = placed.sink;
-    placements[count * 3 + 1] = random();
-    placements[count * 3 + 2] = random();
     count += 1;
   }
-  return { count, matrices, placements };
+  return groupIntoTiles(matrices, count, field.size);
 }
 
 export function scatterBiome(field: ElevationField, rules: ScatterRules): BiomeLayout {

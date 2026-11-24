@@ -3,7 +3,6 @@ import {
   ConeGeometry,
   CylinderGeometry,
   IcosahedronGeometry,
-  InstancedBufferAttribute,
   type BufferGeometry,
 } from 'three';
 import { mergeGeometries, mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
@@ -37,10 +36,9 @@ function part(geometry: BufferGeometry, canopy: number): BufferGeometry {
   return flat;
 }
 
-function assemble(parts: BufferGeometry[], capacity: number): BufferGeometry {
+function assemble(parts: BufferGeometry[]): BufferGeometry {
   const merged = mergeGeometries(parts);
   for (const piece of parts) piece.dispose();
-  merged.setAttribute('aPlacement', new InstancedBufferAttribute(new Float32Array(capacity * 3), 3));
   return merged;
 }
 
@@ -96,11 +94,11 @@ const TREE_PARTS: Record<VegetationKind, () => BufferGeometry[]> = {
   shrub: () => crown(SHRUB_CLUMPS, 0.7),
 };
 
-export function createTreeGeometry(kind: VegetationKind, capacity: number): BufferGeometry {
-  return assemble(TREE_PARTS[kind](), capacity);
+export function createTreeGeometry(kind: VegetationKind): BufferGeometry {
+  return assemble(TREE_PARTS[kind]());
 }
 
-export function createBoulderGeometry(capacity: number): BufferGeometry {
+export function createBoulderGeometry(): BufferGeometry {
   const source = new IcosahedronGeometry(1, 1);
   source.deleteAttribute('uv');
   source.deleteAttribute('normal');
@@ -118,6 +116,5 @@ export function createBoulderGeometry(capacity: number): BufferGeometry {
   }
   geometry.computeVertexNormals();
   geometry.setAttribute('aCanopy', new BufferAttribute(new Float32Array(positions.count), 1));
-  geometry.setAttribute('aPlacement', new InstancedBufferAttribute(new Float32Array(capacity * 3), 3));
   return geometry;
 }
