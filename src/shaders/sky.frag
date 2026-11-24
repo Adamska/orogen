@@ -11,7 +11,7 @@ float cirrus(vec3 direction) {
   vec2 drift = vec2(uTime * 0.006, uTime * 0.002);
   float streaks = fbmDerivative(sheet * vec2(0.55, 1.7) + drift).x;
   float billow = fbmDerivative(sheet * 1.3 - drift * 1.6 + 7.3).x;
-  float coverage = smoothstep(0.52, 0.8, streaks * 0.8 + billow * 0.5);
+  float coverage = smoothstep(0.52 - uOvercast * 0.5, 0.8, streaks * 0.8 + billow * 0.5);
   return coverage * smoothstep(0.02, 0.16, direction.y);
 }
 

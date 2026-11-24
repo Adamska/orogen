@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { VEGETATION_KINDS, WORLD_LIMITS, type NumericRange, type WorldConfig } from '@/engine/worldConfig';
+import { VEGETATION_KINDS, WEATHER_KINDS, WORLD_LIMITS, type NumericRange, type WorldConfig } from '@/engine/worldConfig';
 
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 const NAME_LIMIT = 48;
@@ -29,6 +29,7 @@ export const TerraformDirectiveSchema = z.object({
   vegetation: z
     .enum(VEGETATION_KINDS)
     .describe('Dominant plant form: conifer for boreal and alpine, broadleaf for temperate, palm for tropical coasts, shrub for arid scrub.'),
+  weather: z.enum(WEATHER_KINDS).describe('Precipitation. Use rain for storms and drizzle, snow for snowfall and blizzards, otherwise clear.'),
   palette: z.object({
     sand: color('Shoreline and beach sediment.'),
     grass: color('Lowland ground cover such as moss, grass, lichen or regolith.'),
@@ -84,6 +85,7 @@ export function sanitizeDirective(draft: TerraformDirective): TerraformDirective
     snowLine: clamp(draft.snowLine, WORLD_LIMITS.snowLine),
     foliageDensity: clamp(draft.foliageDensity, WORLD_LIMITS.foliageDensity),
     vegetation: draft.vegetation,
+    weather: draft.weather,
     palette: { ...draft.palette },
     atmosphere: {
       ...draft.atmosphere,

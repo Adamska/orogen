@@ -12,6 +12,7 @@ import { PostProcessingStack } from './PostProcessingStack';
 import { TerrainWorld } from './TerrainWorld';
 import { useSceneReady } from './useSceneReady';
 import { useTerrainSurface } from './useTerrainSurface';
+import { WeatherSystem } from './WeatherSystem';
 import { frameStats } from './frameStats';
 import { beginDayCycle, endDayCycle } from './dayCycle';
 import { stepWorld, syncWorldTargets, worldRuntime } from './worldRuntime';
@@ -73,6 +74,7 @@ export function WorldScene({ onReady }: { onReady?: () => void }) {
         maxPolarAngle={Math.PI * 0.478}
         target={ORBIT_TARGET}
       />
+      <WeatherSystem />
       <CinematicDirector />
       <PostProcessingStack />
     </>

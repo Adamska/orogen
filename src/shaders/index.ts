@@ -4,6 +4,8 @@ import noiseChunk from './chunks/noise.glsl';
 import shadingChunk from './chunks/shading.glsl';
 import shadowVertexChunk from './chunks/shadow_vertex.glsl';
 import depthFrag from './depth.frag';
+import precipitationFrag from './precipitation.frag';
+import precipitationVert from './precipitation.vert';
 import scatterFrag from './scatter.frag';
 import scatterVert from './scatter.vert';
 import skyFrag from './sky.frag';
@@ -49,6 +51,11 @@ export const waterShader = {
 export const scatterShader = {
   vertex: resolveIncludes(scatterVert),
   fragment: resolveIncludes(scatterFrag),
+} as const;
+
+export const precipitationShader = {
+  vertex: resolveIncludes(precipitationVert),
+  fragment: resolveIncludes(precipitationFrag),
 } as const;
 
 export const depthFragment = depthFrag;

@@ -5,6 +5,8 @@ export const DEFAULT_SEED = 1837;
 
 export const VEGETATION_KINDS = ['conifer', 'broadleaf', 'palm', 'shrub'] as const;
 export type VegetationKind = (typeof VEGETATION_KINDS)[number];
+export const WEATHER_KINDS = ['clear', 'rain', 'snow'] as const;
+export type WeatherKind = (typeof WEATHER_KINDS)[number];
 
 export interface TerrainShape {
   amplitude: number;
@@ -39,6 +41,7 @@ export interface WorldConfig {
   snowLine: number;
   foliageDensity: number;
   vegetation: VegetationKind;
+  weather: WeatherKind;
   palette: BiomePalette;
   atmosphere: AtmosphereState;
 }
@@ -69,6 +72,7 @@ export const DEFAULT_WORLD: WorldConfig = {
   snowLine: 0.6,
   foliageDensity: 0.72,
   vegetation: 'conifer',
+  weather: 'clear',
   palette: {
     sand: '#8f7d66',
     grass: '#50692f',

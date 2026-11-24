@@ -33,6 +33,7 @@ export const TERRAFORM_PRESETS: readonly TerraformPreset[] = [
       snowLine: 1.2,
       foliageDensity: 0.1,
       vegetation: 'palm',
+      weather: 'clear',
       palette: {
         sand: '#2c2627', grass: '#4a3d2b', foliage: '#4b6a32', rock: '#221e24',
         snow: '#d9d2cf', waterShallow: '#2f6377', waterDeep: '#080f1c',
@@ -54,6 +55,7 @@ export const TERRAFORM_PRESETS: readonly TerraformPreset[] = [
       snowLine: 0.55,
       foliageDensity: 0.95,
       vegetation: 'broadleaf',
+      weather: 'clear',
       palette: {
         sand: '#9a917c', grass: '#2c7d3f', foliage: '#2f6b33', rock: '#5d6167',
         snow: '#f7fafc', waterShallow: '#4fb7a8', waterDeep: '#0f4a55',
@@ -75,6 +77,7 @@ export const TERRAFORM_PRESETS: readonly TerraformPreset[] = [
       snowLine: 1.2,
       foliageDensity: 0,
       vegetation: 'shrub',
+      weather: 'clear',
       palette: {
         sand: '#b5673a', grass: '#9a4f2c', foliage: '#6e5230', rock: '#7a3a22',
         snow: '#e8c9a8', waterShallow: '#8a5a3c', waterDeep: '#3a2015',
@@ -96,6 +99,7 @@ export const TERRAFORM_PRESETS: readonly TerraformPreset[] = [
       snowLine: 0.36,
       foliageDensity: 0,
       vegetation: 'conifer',
+      weather: 'snow',
       palette: {
         sand: '#aab4bd', grass: '#8fa3ad', foliage: '#2b3f37', rock: '#56626d',
         snow: '#fbfdff', waterShallow: '#6fd0e0', waterDeep: '#0b3550',
@@ -117,6 +121,7 @@ export const TERRAFORM_PRESETS: readonly TerraformPreset[] = [
       snowLine: 1.2,
       foliageDensity: 0.85,
       vegetation: 'palm',
+      weather: 'clear',
       palette: {
         sand: '#d9c391', grass: '#3f9a45', foliage: '#3f8c36', rock: '#7d7461',
         snow: '#ffffff', waterShallow: '#35e0cf', waterDeep: '#0a4f8a',

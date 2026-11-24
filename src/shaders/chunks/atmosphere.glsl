@@ -5,6 +5,7 @@ uniform vec3 uSkyHorizon;
 uniform float uFogDensity;
 uniform vec3 uMoonDirection;
 uniform float uNight;
+uniform float uOvercast;
 
 const float FOG_HEIGHT_FALLOFF = 0.011;
 const float FOG_BASE_DENSITY = 0.0034;
@@ -29,7 +30,10 @@ vec3 skyGradient(vec3 direction) {
   vec3 rayleigh = mix(uSkyZenith, uSkyHorizon, haze) * (0.8 + 0.2 * cosTheta * cosTheta);
   rayleigh *= mix(0.12, 1.0, daylightFactor());
   vec3 nightSky = mix(vec3(0.004, 0.008, 0.024), vec3(0.016, 0.026, 0.06), haze);
-  return mix(rayleigh, nightSky, uNight * 0.9);
+  rayleigh = mix(rayleigh, nightSky, uNight * 0.9);
+  float grey = dot(rayleigh, vec3(0.2126, 0.7152, 0.0722));
+  vec3 overcast = vec3(grey) * vec3(0.92, 0.96, 1.04) * mix(0.85, 1.15, haze);
+  return mix(rayleigh, overcast, uOvercast * 0.8);
 }
 
 vec3 sunHalo(vec3 direction) {
@@ -38,7 +42,7 @@ vec3 sunHalo(vec3 direction) {
   float haze = 1.0 - smoothstep(0.0, 0.55, altitude);
   float lowSun = 1.0 - smoothstep(0.0, 0.5, uSunDirection.y);
   float mie = henyeyGreenstein(cosTheta, 0.86) * 0.08 + henyeyGreenstein(cosTheta, 0.6) * 0.1;
-  return uSunColor * mie * mix(0.4, 1.0, haze) * (1.0 + lowSun * 0.6);
+  return uSunColor * mie * mix(0.4, 1.0, haze) * (1.0 + lowSun * 0.6) * (1.0 - uOvercast * 0.7);
 }
 
 vec3 moonGlow(vec3 direction) {
@@ -54,7 +58,7 @@ vec3 sunDisc(vec3 direction) {
   float cosTheta = dot(direction, uSunDirection);
   float disc = smoothstep(0.99972, 0.99988, cosTheta);
   float limb = mix(0.6, 1.0, smoothstep(0.99972, 0.99998, cosTheta));
-  return uSunColor * disc * limb * 9.0;
+  return uSunColor * disc * limb * 9.0 * (1.0 - uOvercast * 0.9);
 }
 
 float fogAmount(vec3 direction, float range) {

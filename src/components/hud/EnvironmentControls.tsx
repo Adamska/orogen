@@ -6,6 +6,7 @@ import { useWorldStore } from '@/store/useWorldStore';
 import { GlassPanel } from './GlassPanel';
 import { ChevronIcon } from './icons';
 import { RangeField } from './RangeField';
+import { WeatherPicker } from './WeatherPicker';
 import { WorldActions } from './WorldActions';
 
 const WIDE_VIEWPORT_QUERY = '(min-width: 640px)';
@@ -94,6 +95,7 @@ export function EnvironmentControls() {
             onChange={setFoliageDensity}
           />
 
+          <WeatherPicker />
           <WorldActions />
         </div>
       )}

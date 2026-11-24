@@ -12,6 +12,7 @@ uniform vec3 uGrassColor;
 uniform vec3 uRockColor;
 uniform vec3 uSnowColor;
 uniform vec3 uWaterDeep;
+uniform float uRain;
 
 varying vec3 vWorldPosition;
 
@@ -83,6 +84,10 @@ void main() {
   albedo = mix(albedo, snow, snowMask);
   albedo = mix(albedo, seabed, seabedMask);
 
+  float soaked = uRain * (1.0 - snowMask) * smoothstep(0.55, 0.9, slope + 0.2);
+  albedo *= 1.0 - soaked * 0.32;
+  wetness = max(wetness, soaked * 0.8);
+
   float occlusion = clamp(1.0 - field.a * uAmplitude * 0.05, 0.28, 1.0);
   float shadow = sunShadow();
   float diffuse = max(dot(normal, uLightDirection), 0.0);
@@ -90,7 +95,7 @@ void main() {
 
   vec3 halfVector = normalize(view + uLightDirection);
   float highlight = max(dot(normal, halfVector), 0.0);
-  float wetSheen = pow(highlight, 90.0) * wetness * sandMask * 1.2;
+  float wetSheen = pow(highlight, 90.0) * wetness * max(sandMask, soaked) * 1.2;
   float sparkle = step(0.986, hash21(floor(planar * 2.5))) * pow(highlight, 20.0) * snowMask *
     detail * 3.0;
   lit += uLightColor * (wetSheen + sparkle) * shadow;

@@ -1,5 +1,5 @@
 import { hashString } from '@/engine/random';
-import type { VegetationKind } from '@/engine/worldConfig';
+import type { VegetationKind, WeatherKind } from '@/engine/worldConfig';
 import { TERRAFORM_PRESETS, type TerraformPreset } from './presets';
 import { sanitizeDirective, type TerraformDirective, type TerraformResponse } from './terraformSchema';
 
@@ -42,7 +42,15 @@ function plants(kind: VegetationKind): Modifier {
   };
 }
 
+function precipitation(kind: WeatherKind): Modifier {
+  return (draft) => {
+    draft.weather = kind;
+  };
+}
+
 const LEXICON: readonly LexiconEntry[] = [
+  { terms: ['rain', 'rainy', 'storm', 'stormy', 'drizzle', 'monsoon', 'downpour', 'thunderstorm'], apply: precipitation('rain') },
+  { terms: ['snowfall', 'snowing', 'blizzard', 'snowstorm', 'flurries'], apply: precipitation('snow') },
   { terms: ['pine', 'taiga', 'boreal', 'spruce', 'fir', 'conifer'], apply: plants('conifer') },
   { terms: ['oak', 'autumn', 'deciduous', 'temperate', 'woodland', 'maple', 'birch'], apply: plants('broadleaf') },
   { terms: ['palm', 'tropical', 'jungle', 'coconut', 'paradise'], apply: plants('palm') },

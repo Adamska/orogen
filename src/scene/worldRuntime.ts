@@ -6,6 +6,10 @@ import { worldUniforms } from './worldUniforms';
 const TRANSITION_RATE = 2.6;
 const MORPH_SECONDS = 1.9;
 const FOLIAGE_RATE = 5.5;
+const WEATHER_RATE = 0.7;
+const OVERCAST = { clear: 0, rain: 0.85, snow: 0.6 } as const;
+const SNOWFALL_DESCENT = 0.16;
+const OVERCAST_HAZE = 0.28;
 const SUN_INTENSITY = 1.7;
 const LOW_SUN = new Color(1.0, 0.54, 0.26);
 const HIGH_SUN = new Color(1.0, 0.95, 0.86);
@@ -30,6 +34,9 @@ const target = {
   waterLevel: 0,
   snowLine: 1,
   fogDensity: 0,
+  rain: 0,
+  snowfall: 0,
+  overcast: 0,
   sunElevation: 45,
   sunAzimuth: 0,
   skyZenith: new Color(),
@@ -57,6 +64,9 @@ export function syncWorldTargets(world: WorldConfig): void {
   target.waterLevel = world.waterLevel;
   target.snowLine = world.snowLine;
   target.fogDensity = world.atmosphere.fogDensity;
+  target.rain = world.weather === 'rain' ? 1 : 0;
+  target.snowfall = world.weather === 'snow' ? 1 : 0;
+  target.overcast = OVERCAST[world.weather];
   target.sunElevation = world.atmosphere.sunElevation;
   target.sunAzimuth = world.atmosphere.sunAzimuth;
   worldRuntime.targetSunAzimuth = world.atmosphere.sunAzimuth;
@@ -86,6 +96,7 @@ function updateSun(): void {
   const peak = Math.max(horizon.r, horizon.g, horizon.b, 1e-3);
   horizonTint.copy(horizon).multiplyScalar(1 / peak);
   const intensity =
+    (1 - worldUniforms.uOvercast.value * 0.55) *
     SUN_INTENSITY * MathUtils.smoothstep(height, -0.07, 0.1) * MathUtils.lerp(0.95, 0.86, clarity);
   worldUniforms.uSunColor.value
     .copy(LOW_SUN)
@@ -118,8 +129,14 @@ export function stepWorld(delta: number): void {
   const lerp = MathUtils.lerp;
   worldUniforms.uAmplitude.value = lerp(worldUniforms.uAmplitude.value, target.amplitude, blend);
   worldUniforms.uWaterLevel.value = lerp(worldUniforms.uWaterLevel.value, target.waterLevel, blend);
-  worldUniforms.uSnowLine.value = lerp(worldUniforms.uSnowLine.value, target.snowLine, blend);
-  worldUniforms.uFogDensity.value = lerp(worldUniforms.uFogDensity.value, target.fogDensity, blend);
+  const weatherBlend = 1 - Math.exp(-step * WEATHER_RATE);
+  worldUniforms.uRain.value = lerp(worldUniforms.uRain.value, target.rain, weatherBlend);
+  worldUniforms.uSnowfall.value = lerp(worldUniforms.uSnowfall.value, target.snowfall, weatherBlend);
+  worldUniforms.uOvercast.value = lerp(worldUniforms.uOvercast.value, target.overcast, weatherBlend);
+  const snowLine = target.snowLine - worldUniforms.uSnowfall.value * SNOWFALL_DESCENT;
+  const fogDensity = target.fogDensity + worldUniforms.uOvercast.value * OVERCAST_HAZE;
+  worldUniforms.uSnowLine.value = lerp(worldUniforms.uSnowLine.value, snowLine, blend);
+  worldUniforms.uFogDensity.value = lerp(worldUniforms.uFogDensity.value, fogDensity, blend);
   worldUniforms.uSkyZenith.value.lerp(target.skyZenith, blend);
   worldUniforms.uSkyHorizon.value.lerp(target.skyHorizon, blend);
   for (const key of PALETTE_KEYS) PALETTE_UNIFORMS[key].value.lerp(target.palette[key], blend);

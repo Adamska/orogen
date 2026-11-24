@@ -6,6 +6,7 @@ import {
   DEFAULT_SEED,
   DEFAULT_WORLD,
   type AtmosphereState,
+  type WeatherKind,
   type WorldConfig,
 } from '@/engine/worldConfig';
 
@@ -26,6 +27,7 @@ export interface WorldStore {
   setAtmosphere: (patch: Partial<AtmosphereState>) => void;
   setWaterLevel: (waterLevel: number) => void;
   setFoliageDensity: (foliageDensity: number) => void;
+  setWeather: (weather: WeatherKind) => void;
   regenerateSeed: () => void;
   toggleAutoOrbit: () => void;
   setAutoOrbit: (autoOrbit: boolean) => void;
@@ -80,6 +82,7 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
   setWaterLevel: (waterLevel) => set((state) => ({ world: { ...state.world, waterLevel } })),
   setFoliageDensity: (foliageDensity) =>
     set((state) => ({ world: { ...state.world, foliageDensity } })),
+  setWeather: (weather) => set((state) => ({ world: { ...state.world, weather } })),
   regenerateSeed: () => set({ seed: Math.floor(Math.random() * SEED_SPACE) }),
   toggleAutoOrbit: () => set((state) => ({ autoOrbit: !state.autoOrbit })),
   setAutoOrbit: (autoOrbit) => set({ autoOrbit }),
