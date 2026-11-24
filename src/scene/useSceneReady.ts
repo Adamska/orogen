@@ -1,5 +1,6 @@
 import { useThree } from '@react-three/fiber';
 import { useEffect, useRef } from 'react';
+import { useBootStore } from '@/store/useBootStore';
 
 export function useSceneReady(active: boolean, onReady?: () => void): void {
   const gl = useThree((state) => state.gl);
@@ -10,6 +11,7 @@ export function useSceneReady(active: boolean, onReady?: () => void): void {
   useEffect(() => {
     if (!active || announced.current) return;
     announced.current = true;
+    useBootStore.getState().advance('shaders');
     const frame = requestAnimationFrame(() => {
       gl.compile(scene, camera);
       requestAnimationFrame(() => requestAnimationFrame(() => onReady?.()));

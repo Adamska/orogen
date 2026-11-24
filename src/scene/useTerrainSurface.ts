@@ -3,6 +3,7 @@ import type { ElevationField, FieldParams } from '@/engine/elevationField';
 import type { SurfaceBuffers } from '@/engine/terrainBuilder';
 import { sameFieldParams } from '@/engine/terrainProtocol';
 import { requestSurface } from '@/engine/terrainWorkerClient';
+import { useBootStore } from '@/store/useBootStore';
 import { useWorldStore } from '@/store/useWorldStore';
 import { worldRuntime } from './worldRuntime';
 
@@ -37,6 +38,7 @@ export function useTerrainSurface(): TerrainSurface | null {
     let cancelled = false;
     worldRuntime.rebuildPending = !initial;
 
+    if (initial) useBootStore.getState().advance('terrain');
     const settle = async () => {
       if (!initial) await wait(REQUEST_DEBOUNCE_MS);
       if (cancelled) return;
