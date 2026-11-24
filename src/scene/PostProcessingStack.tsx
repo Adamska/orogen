@@ -5,7 +5,7 @@ import { Bloom, DepthOfField, EffectComposer, GodRays, ToneMapping, Vignette } f
 import { BlendFunction, KernelSize, ToneMappingMode } from 'postprocessing';
 import { useRef, type RefObject } from 'react';
 import { HalfFloatType, type Mesh, type MeshBasicMaterial } from 'three';
-import { useQualityProfile } from '@/store/useQualityStore';
+import { QUALITY_PROFILES, useQualityStore } from '@/store/useQualityStore';
 import { useWorldStore } from '@/store/useWorldStore';
 import { ORBIT_TARGET } from './orbitRig';
 import { worldUniforms } from './worldUniforms';
@@ -32,7 +32,7 @@ function SunBeacon({ beaconRef }: { beaconRef: RefObject<Mesh | null> }) {
 }
 
 export function PostProcessingStack() {
-  const { multisampling } = useQualityProfile();
+  const multisampling = useQualityStore((state) => QUALITY_PROFILES[state.baseline].multisampling);
   const photoMode = useWorldStore((state) => state.photoMode);
   const beaconRef = useRef<Mesh>(null);
 

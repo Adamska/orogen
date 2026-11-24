@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ElevationField, FieldParams } from '@/engine/elevationField';
 import type { TerrainMesh } from '@/engine/terrainBuilder';
 import { sameFieldParams } from '@/engine/terrainProtocol';
@@ -17,9 +17,18 @@ export interface TerrainSurface {
 const REQUEST_DEBOUNCE_MS = 90;
 const FOLIAGE_RETREAT_MS = 380;
 const MORPH_POLL_MS = 120;
+const MORPH_WAIT_LIMIT_MS = 5000;
+const MESH_SWAP_DELAY_MS = 1200;
 
 const wait = (milliseconds: number) =>
   new Promise<void>((resolve) => window.setTimeout(resolve, milliseconds));
+
+async function waitForMorph(isCancelled: () => boolean): Promise<void> {
+  const deadline = performance.now() + MORPH_WAIT_LIMIT_MS;
+  while (!isCancelled() && worldRuntime.morphProgress < 1 && performance.now() < deadline) {
+    await wait(MORPH_POLL_MS);
+  }
+}
 
 export function useTerrainSurface(): TerrainSurface | null {
   const seed = useWorldStore((state) => state.seed);
@@ -27,37 +36,34 @@ export function useTerrainSurface(): TerrainSurface | null {
   const warpIntensity = useWorldStore((state) => state.world.terrain.warpIntensity);
   const valleyDepth = useWorldStore((state) => state.world.terrain.valleyDepth);
   const { meshResolution } = useQualityProfile();
+  const latestResolution = useRef(meshResolution);
   const [surface, setSurface] = useState<TerrainSurface | null>(null);
+  const fieldParams = surface?.field.params ?? null;
+
+  useEffect(() => {
+    latestResolution.current = meshResolution;
+  }, [meshResolution]);
 
   useEffect(() => {
     const requested: FieldParams = { seed, ridgeSharpness, warpIntensity, valleyDepth };
-    const sameField = surface !== null && sameFieldParams(surface.field.params, requested);
-    if (sameField && surface.mesh.resolution === meshResolution) {
+    if (fieldParams !== null && sameFieldParams(fieldParams, requested)) {
       worldRuntime.rebuildPending = false;
       return;
     }
 
+    const initial = fieldParams === null;
     let cancelled = false;
-    if (sameField) {
-      void requestMesh(requested, meshResolution).then((mesh) => {
-        if (!cancelled) setSurface((current) => (current ? { ...current, mesh } : current));
-      });
-      return () => {
-        cancelled = true;
-      };
-    }
-
-    const initial = surface === null;
     worldRuntime.rebuildPending = !initial;
     if (initial) useBootStore.getState().advance('terrain');
+
     const settle = async () => {
       if (!initial) await wait(REQUEST_DEBOUNCE_MS);
       if (cancelled) return;
       const [built] = await Promise.all([
-        requestSurface(requested, meshResolution),
+        requestSurface(requested, latestResolution.current),
         wait(initial ? 0 : FOLIAGE_RETREAT_MS),
       ]);
-      while (!cancelled && worldRuntime.morphProgress < 1) await wait(MORPH_POLL_MS);
+      await waitForMorph(() => cancelled);
       if (!cancelled) setSurface(built);
     };
     void settle();
@@ -65,7 +71,26 @@ export function useTerrainSurface(): TerrainSurface | null {
     return () => {
       cancelled = true;
     };
-  }, [seed, ridgeSharpness, warpIntensity, valleyDepth, meshResolution, surface]);
+  }, [seed, ridgeSharpness, warpIntensity, valleyDepth, fieldParams]);
+
+  useEffect(() => {
+    if (surface === null || surface.mesh.resolution === meshResolution) return;
+    let cancelled = false;
+    const params = surface.field.params;
+    const timer = window.setTimeout(() => {
+      if (worldRuntime.rebuildPending) return;
+      void requestMesh(params, meshResolution).then((mesh) => {
+        if (cancelled) return;
+        setSurface((current) =>
+          current !== null && sameFieldParams(current.field.params, params) ? { ...current, mesh } : current,
+        );
+      });
+    }, MESH_SWAP_DELAY_MS);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [surface, meshResolution]);
 
   return surface;
 }

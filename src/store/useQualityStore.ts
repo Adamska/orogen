@@ -21,21 +21,43 @@ export const QUALITY_PROFILES: Record<QualityTier, QualityProfile> = {
 
 interface QualityStore {
   tier: QualityTier;
+  baseline: QualityTier;
+  declines: number;
+  quietUntil: number;
   calibrate: () => void;
   shift: (direction: 1 | -1) => void;
+  holdSteady: (milliseconds: number) => void;
 }
+
+const BOOT_SETTLE_MS = 5000;
+const SHIFT_COOLDOWN_MS = 8000;
+const MAX_DECLINES_BEFORE_LOCK = 2;
 
 export const useQualityStore = create<QualityStore>((set) => ({
   tier: 'high',
+  baseline: 'high',
+  declines: 0,
+  quietUntil: 0,
   calibrate: () => {
     const handheld = window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 768;
-    set({ tier: handheld ? 'medium' : 'high' });
+    const tier = handheld ? 'medium' : 'high';
+    set({ tier, baseline: tier, quietUntil: performance.now() + BOOT_SETTLE_MS });
   },
   shift: (direction) =>
     set((state) => {
-      const index = QUALITY_TIERS.indexOf(state.tier) + direction;
-      return { tier: QUALITY_TIERS[Math.min(QUALITY_TIERS.length - 1, Math.max(0, index))] };
+      const now = performance.now();
+      if (now < state.quietUntil) return state;
+      if (direction > 0 && state.declines >= MAX_DECLINES_BEFORE_LOCK) return state;
+      const index = Math.min(QUALITY_TIERS.length - 1, Math.max(0, QUALITY_TIERS.indexOf(state.tier) + direction));
+      if (QUALITY_TIERS[index] === state.tier) return state;
+      return {
+        tier: QUALITY_TIERS[index],
+        declines: state.declines + (direction < 0 ? 1 : 0),
+        quietUntil: now + SHIFT_COOLDOWN_MS,
+      };
     }),
+  holdSteady: (milliseconds) =>
+    set((state) => ({ quietUntil: Math.max(state.quietUntil, performance.now() + milliseconds) })),
 }));
 
 export function useQualityProfile(): QualityProfile {
