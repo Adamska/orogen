@@ -9,6 +9,7 @@ import { PhotoToolbar } from './PhotoToolbar';
 import { SculptPanel } from './SculptPanel';
 import { SoundToggle } from './SoundToggle';
 import { TelemetryBadge } from './TelemetryBadge';
+import { TerraformSweep } from './TerraformSweep';
 import { WorldHistory } from './WorldHistory';
 import { WorldLinkSync } from './WorldLinkSync';
 import { WorldTitle } from './WorldTitle';
@@ -21,6 +22,7 @@ export function HudOverlay() {
   return (
     <div className="pointer-events-none absolute inset-0 z-10 animate-[rise_900ms_ease-out_both]">
       <WorldLinkSync />
+      <TerraformSweep />
       {photoMode ? (
         <div className="absolute inset-x-0 bottom-5 flex justify-center px-4 sm:bottom-7">
           <PhotoToolbar />
@@ -39,7 +41,7 @@ export function HudOverlay() {
             </div>
             <SoundToggle />
           </div>
-          <div className="absolute bottom-20 right-4 sm:bottom-auto sm:right-6 sm:top-1/2 sm:-translate-y-1/2">
+          <div className="absolute inset-x-4 bottom-20 sm:inset-x-auto sm:bottom-auto sm:right-6 sm:top-1/2 sm:-translate-y-1/2">
             <EnvironmentControls />
           </div>
           <div className="absolute inset-x-0 bottom-5 flex flex-col items-center gap-3 px-4 sm:bottom-7">

@@ -6,8 +6,19 @@ import { PROMPT_LIMIT } from '@/ai/terraformSchema';
 import { useWorldStore } from '@/store/useWorldStore';
 import { GlassPanel } from './GlassPanel';
 import { ArrowIcon, SparkIcon } from './icons';
+import { useFirstVisit } from './useFirstVisit';
+import { useRotatingText } from './useRotatingText';
 
 const MIN_PROMPT_LENGTH = 2;
+const PROMPT_ROTATION_MS = 3200;
+const EXAMPLE_PROMPTS = [
+  'Misty emerald alpine valley at dawn',
+  'Stormy volcanic coast at midnight',
+  'Autumn broadleaf hills under a pink sunrise',
+  'Frozen fjord in a snowstorm',
+  'Alien violet canyon with twisted spires',
+  'Tropical atoll lagoon at high noon',
+] as const;
 
 export function CommandBar() {
   const open = useWorldStore((state) => state.commandOpen);
@@ -17,6 +28,12 @@ export function CommandBar() {
   const applyPreset = useWorldStore((state) => state.applyPreset);
   const [prompt, setPrompt] = useState('');
   const panelRef = useRef<HTMLDivElement>(null);
+  const [firstVisit, completeOnboarding] = useFirstVisit();
+  const example = useRotatingText(EXAMPLE_PROMPTS, PROMPT_ROTATION_MS, open && prompt.length === 0);
+
+  useEffect(() => {
+    if (open && firstVisit) completeOnboarding();
+  }, [open, firstVisit, completeOnboarding]);
 
   useEffect(() => {
     if (!open) return;
@@ -44,7 +61,11 @@ export function CommandBar() {
 
   if (!open) {
     return (
-      <GlassPanel className="rounded-full transition-transform duration-300 hover:scale-[1.02]">
+      <GlassPanel
+        className={`rounded-full transition-transform duration-300 hover:scale-[1.02] ${
+          firstVisit ? 'animate-[beckon_2.6s_ease-in-out_infinite]' : ''
+        }`}
+      >
         <button
           type="button"
           onClick={() => setOpen(true)}
@@ -72,7 +93,13 @@ export function CommandBar() {
           maxLength={PROMPT_LIMIT}
           disabled={directing}
           onChange={(event) => setPrompt(event.target.value)}
-          placeholder="Misty emerald alpine valley at dawn"
+          onKeyDown={(event) => {
+            if (event.key === 'Tab' && prompt.length === 0) {
+              event.preventDefault();
+              setPrompt(example);
+            }
+          }}
+          placeholder={example}
           aria-label="World description"
           className="h-10 min-w-0 flex-1 bg-transparent text-[15px] text-white outline-none placeholder:text-white/35"
         />
@@ -103,7 +130,7 @@ export function CommandBar() {
       <p className="px-2 pb-1 pt-2.5 text-[11px] text-white/40" aria-live="polite">
         {directing
           ? 'Directing geology, biomes and atmosphere'
-          : 'Describe terrain, climate and light. Press Enter to terraform, Esc to dismiss.'}
+          : 'Describe terrain, climate, weather and light. Tab takes the suggestion, Enter terraforms.'}
       </p>
     </GlassPanel>
   );
