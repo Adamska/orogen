@@ -4,24 +4,11 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useRef } from 'react';
 import { useQualityProfile } from '@/store/useQualityStore';
 import { useWorldStore } from '@/store/useWorldStore';
+import { downloadWorldFile } from './downloadFile';
 
 const TARGET_WIDTH = 3840;
 const MAX_CAPTURE_RATIO = 3;
 const SETTLE_FRAMES = 3;
-
-function fileName(): string {
-  const { world, seed } = useWorldStore.getState();
-  const slug = world.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  return `orogen-${slug}-${seed}.png`;
-}
-
-function download(blob: Blob | null): void {
-  if (!blob) return;
-  const url = URL.createObjectURL(blob);
-  const anchor = Object.assign(document.createElement('a'), { href: url, download: fileName() });
-  anchor.click();
-  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
 
 export function PhotoCapture() {
   const setDpr = useThree((state) => state.setDpr);
@@ -46,7 +33,7 @@ export function PhotoCapture() {
       return;
     }
     pendingFrames.current = -1;
-    gl.domElement.toBlob(download, 'image/png');
+    gl.domElement.toBlob((blob) => downloadWorldFile(blob, 'png'), 'image/png');
     setDpr(Math.min(window.devicePixelRatio, maxPixelRatio));
   }, 10);
 
