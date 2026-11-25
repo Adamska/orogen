@@ -119,3 +119,12 @@ export const SoundIcon = (props: IconProps & { muted?: boolean }) => {
     </Glyph>
   );
 };
+
+export const WalkIcon = (props: IconProps) => (
+  <Glyph {...props}>
+    <circle cx="13.5" cy="4.5" r="1.8" />
+    <path d="m9.5 21 2.4-6.4 2.8 2.4V21" />
+    <path d="M11.9 14.6 12.8 8.6 9 10.8l-.8 3.2" />
+    <path d="m12.8 8.6 2.3 3.1 3 .9" />
+  </Glyph>
+);

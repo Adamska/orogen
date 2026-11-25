@@ -1,7 +1,7 @@
 'use client';
 
 import { useWorldStore } from '@/store/useWorldStore';
-import { BrushIcon, CameraIcon, CycleIcon, FlightIcon, OrbitIcon, ShuffleIcon } from './icons';
+import { BrushIcon, CameraIcon, CycleIcon, FlightIcon, OrbitIcon, ShuffleIcon, WalkIcon } from './icons';
 import { ShareButton } from './ShareButton';
 import { ToggleButton } from './ToggleButton';
 
@@ -14,6 +14,8 @@ export function WorldActions() {
   const setPhotoMode = useWorldStore((state) => state.setPhotoMode);
   const flightMode = useWorldStore((state) => state.flightMode);
   const setFlightMode = useWorldStore((state) => state.setFlightMode);
+  const walkMode = useWorldStore((state) => state.walkMode);
+  const setWalkMode = useWorldStore((state) => state.setWalkMode);
   const sculptMode = useWorldStore((state) => state.sculptMode);
   const setSculptMode = useWorldStore((state) => state.setSculptMode);
 
@@ -27,7 +29,7 @@ export function WorldActions() {
         <ShuffleIcon />
         New seed
       </button>
-      <div className="grid grid-cols-6 gap-1">
+      <div className="grid grid-cols-7 gap-1">
         <ToggleButton label="Automatic camera orbit" pressed={autoOrbit} onToggle={toggleAutoOrbit}>
           <OrbitIcon />
         </ToggleButton>
@@ -36,6 +38,9 @@ export function WorldActions() {
         </ToggleButton>
         <ToggleButton label="Free flight" pressed={flightMode} onToggle={() => setFlightMode(!flightMode)}>
           <FlightIcon />
+        </ToggleButton>
+        <ToggleButton label="Walk the terrain" pressed={walkMode} onToggle={() => setWalkMode(!walkMode)}>
+          <WalkIcon />
         </ToggleButton>
         <ToggleButton
           label="Sculpt terrain"
