@@ -10,6 +10,8 @@ import { worldUniforms } from './worldUniforms';
 
 const SUN_DISTANCE = 1800;
 const SHADOW_EXTENT = TERRAIN_SIZE * 0.74;
+const LAMBERT_MATCH = Math.PI;
+const FILL_INTENSITY = 0.9 * LAMBERT_MATCH;
 
 export function AtmosphereRig() {
   const sunRef = useRef<DirectionalLight>(null);
@@ -46,7 +48,7 @@ export function AtmosphereRig() {
     const radiance = worldUniforms.uLightColor.value;
     const intensity = Math.max(radiance.r, radiance.g, radiance.b);
     sun.position.copy(worldUniforms.uLightDirection.value).multiplyScalar(SUN_DISTANCE);
-    sun.intensity = intensity;
+    sun.intensity = intensity * LAMBERT_MATCH;
     if (intensity > 1e-4) sun.color.copy(radiance).multiplyScalar(1 / intensity);
     sun.castShadow = intensity > 1e-3;
 
@@ -59,7 +61,7 @@ export function AtmosphereRig() {
       <mesh material={skyMaterial} frustumCulled={false} renderOrder={10}>
         <icosahedronGeometry args={[1, 5]} />
       </mesh>
-      <hemisphereLight ref={fillRef} intensity={0.6} />
+      <hemisphereLight ref={fillRef} intensity={FILL_INTENSITY} />
       <directionalLight
         ref={sunRef}
         castShadow
