@@ -136,3 +136,14 @@ export const ExportIcon = (props: IconProps) => (
     <path d="M5 19.5h14" />
   </Glyph>
 );
+
+export const DiceIcon = (props: IconProps) => (
+  <Glyph {...props}>
+    <rect x="4" y="4" width="16" height="16" rx="3.5" />
+    <circle cx="9" cy="9" r="0.9" />
+    <circle cx="15" cy="15" r="0.9" />
+    <circle cx="15" cy="9" r="0.9" />
+    <circle cx="9" cy="15" r="0.9" />
+    <circle cx="12" cy="12" r="0.9" />
+  </Glyph>
+);

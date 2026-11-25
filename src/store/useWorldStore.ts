@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { TerraformPreset } from '@/ai/presets';
 import { describeTerraform } from '@/ai/directorNotes';
+import { shuffleWorld } from '@/engine/worldShuffle';
 import type { WorldLink } from './worldLink';
 import {
   DEFAULT_SEED,
@@ -57,6 +58,7 @@ export interface WorldStore {
   tweakWorld: (patch: Partial<Pick<WorldConfig, 'snowLine' | 'volcanism'>>) => void;
   setTerrain: (patch: Partial<TerrainShape>) => void;
   regenerateSeed: () => void;
+  shuffleEnvironment: () => void;
   toggleAutoOrbit: () => void;
   setAutoOrbit: (autoOrbit: boolean) => void;
   toggleTimeLapse: () => void;
@@ -152,6 +154,7 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
   setTerrain: (patch) =>
     set((state) => ({ world: { ...state.world, terrain: { ...state.world.terrain, ...patch } } })),
   regenerateSeed: () => set({ seed: Math.floor(Math.random() * SEED_SPACE) }),
+  shuffleEnvironment: () => set((state) => ({ world: shuffleWorld(state.world) })),
   toggleAutoOrbit: () => set((state) => ({ autoOrbit: !state.autoOrbit })),
   setAutoOrbit: (autoOrbit) => set({ autoOrbit }),
   toggleTimeLapse: () => set((state) => ({ timeLapse: !state.timeLapse })),

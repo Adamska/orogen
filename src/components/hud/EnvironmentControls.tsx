@@ -4,7 +4,7 @@ import { useState, useSyncExternalStore } from 'react';
 import { WORLD_LIMITS } from '@/engine/worldConfig';
 import { useWorldStore } from '@/store/useWorldStore';
 import { GlassPanel } from './GlassPanel';
-import { ChevronIcon } from './icons';
+import { ChevronIcon, DiceIcon } from './icons';
 import { RangeField } from './RangeField';
 import { TerrainControls } from './TerrainControls';
 import { WeatherPicker } from './WeatherPicker';
@@ -38,18 +38,30 @@ export function EnvironmentControls() {
   const setAtmosphere = useWorldStore((state) => state.setAtmosphere);
   const setWaterLevel = useWorldStore((state) => state.setWaterLevel);
   const setFoliageDensity = useWorldStore((state) => state.setFoliageDensity);
+  const shuffleEnvironment = useWorldStore((state) => state.shuffleEnvironment);
 
   return (
     <GlassPanel className="w-full rounded-2xl sm:w-60">
-      <button
-        type="button"
-        onClick={() => setPreference(!expanded)}
-        aria-expanded={expanded}
-        className="flex w-full items-center justify-between px-4 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-white/75 transition-colors hover:text-white"
-      >
-        Environment
-        <ChevronIcon className={`transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`} />
-      </button>
+      <div className="flex items-center pr-2">
+        <button
+          type="button"
+          onClick={() => setPreference(!expanded)}
+          aria-expanded={expanded}
+          className="flex flex-1 items-center justify-between py-3 pl-4 pr-2 text-[11px] font-medium uppercase tracking-[0.2em] text-white/75 transition-colors hover:text-white"
+        >
+          Environment
+          <ChevronIcon className={`transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`} />
+        </button>
+        <button
+          type="button"
+          onClick={shuffleEnvironment}
+          aria-label="Shuffle environment, weather and terrain shaping"
+          title="Shuffle environment, weather and terrain shaping"
+          className="rounded-lg p-1.5 text-white/70 transition-colors hover:bg-white/15 hover:text-white focus-visible:outline-2 focus-visible:outline-white/70"
+        >
+          <DiceIcon />
+        </button>
+      </div>
 
       {expanded && (
         <div className="max-h-[46dvh] space-y-3 overflow-y-auto overscroll-contain border-t border-white/10 px-4 pb-4 pt-3.5 sm:max-h-[calc(100dvh-10rem)]">
