@@ -128,3 +128,11 @@ export const WalkIcon = (props: IconProps) => (
     <path d="m12.8 8.6 2.3 3.1 3 .9" />
   </Glyph>
 );
+
+export const ExportIcon = (props: IconProps) => (
+  <Glyph {...props}>
+    <path d="M12 4v11" />
+    <path d="m7.5 10.5 4.5 4.5 4.5-4.5" />
+    <path d="M5 19.5h14" />
+  </Glyph>
+);

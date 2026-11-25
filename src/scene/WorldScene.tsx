@@ -20,6 +20,7 @@ import { useSceneReady } from './useSceneReady';
 import { useTerrainSurface } from './useTerrainSurface';
 import { WalkMode } from './WalkMode';
 import { WeatherSystem } from './WeatherSystem';
+import { WorldExport } from './WorldExport';
 import { frameStats } from './frameStats';
 import { ORBIT_TARGET } from './orbitRig';
 import { beginDayCycle, endDayCycle } from './dayCycle';
@@ -98,6 +99,7 @@ export function WorldScene({ onReady }: { onReady?: () => void }) {
       <CinematicDirector enabled={!piloted} />
       <HistoryCapture />
       <PhotoCapture />
+      {surface && <WorldExport field={surface.field} />}
       <PostProcessingStack />
     </>
   );

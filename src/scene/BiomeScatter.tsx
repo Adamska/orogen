@@ -11,6 +11,7 @@ import { useWorldStore } from '@/store/useWorldStore';
 import { createDepthMaterial, createLitMaterial } from './materials';
 import { createBoulderGeometry, createTreeGeometry } from './scatterGeometry';
 import { ScatterTiles } from './ScatterTiles';
+import { scatterSnapshot } from './scatterSnapshot';
 import { scatterObstacles, type CanopyShape } from './walkObstacles';
 
 const TRUNK_RADIUS: Record<VegetationKind, number> = { conifer: 0.045, broadleaf: 0.05, palm: 0.034, shrub: 0 };
@@ -48,9 +49,11 @@ export function BiomeScatter({ field }: { field: ElevationField }) {
       layout === null || trunk === 0 ? null : { layout: layout.trees, density: treeDensity, radiusRatio: trunk, canopy: CANOPY[vegetation] };
     scatterObstacles.boulders =
       layout === null ? null : { layout: layout.boulders, density: boulderDensity, radiusRatio: BOULDER_RADIUS, canopy: null };
+    Object.assign(scatterSnapshot, { layout, vegetation, treeDensity, boulderDensity });
     return () => {
       scatterObstacles.trees = null;
       scatterObstacles.boulders = null;
+      scatterSnapshot.layout = null;
     };
   }, [layout, vegetation, treeDensity, boulderDensity]);
 

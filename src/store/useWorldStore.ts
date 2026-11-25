@@ -40,6 +40,8 @@ export interface WorldStore {
   sculptMode: SculptMode;
   brushRadius: number;
   captureToken: number;
+  exportToken: number;
+  exporting: boolean;
   commandOpen: boolean;
   directing: boolean;
   flightToken: number;
@@ -65,6 +67,8 @@ export interface WorldStore {
   setSculptMode: (sculptMode: SculptMode) => void;
   setBrushRadius: (brushRadius: number) => void;
   requestCapture: () => void;
+  requestExport: () => void;
+  setExporting: (exporting: boolean) => void;
   setCommandOpen: (commandOpen: boolean) => void;
 }
 
@@ -83,6 +87,8 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
   sculptMode: 'off',
   brushRadius: 70,
   captureToken: 0,
+  exportToken: 0,
+  exporting: false,
   commandOpen: false,
   directing: false,
   flightToken: 0,
@@ -176,5 +182,7 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
     })),
   beginWalk: (walkSpawn) => set({ walkStage: 'walking', walkSpawn, flightMode: false, sculptMode: 'off', commandOpen: false }),
   requestCapture: () => set((state) => ({ captureToken: state.captureToken + 1 })),
+  requestExport: () => set((state) => (state.exporting ? state : { exportToken: state.exportToken + 1, exporting: true })),
+  setExporting: (exporting) => set({ exporting }),
   setCommandOpen: (commandOpen) => set({ commandOpen }),
 }));

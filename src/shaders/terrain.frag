@@ -53,6 +53,9 @@ void main() {
   vec3 view = cameraPosition - vWorldPosition;
   float range = length(view);
   view /= range;
+  #ifdef BAKE_ALBEDO
+    range = 60.0;
+  #endif
   float detail = 1.0 - smoothstep(140.0, 1300.0, range);
 
   float closeness = 1.0 - smoothstep(60.0, 620.0, range);
@@ -120,6 +123,10 @@ void main() {
   wetness = max(wetness, soaked * 0.8);
 
   float occlusion = clamp(1.0 - field.a * uAmplitude * 0.05, 0.28, 1.0);
+  #ifdef BAKE_ALBEDO
+    gl_FragColor = vec4(pow(albedo * mix(0.6, 1.0, occlusion), vec3(1.0 / 2.2)), 1.0);
+    return;
+  #endif
   float shadow = sunShadow();
   float diffuse = max(dot(normal, uLightDirection), 0.0);
   vec3 lit = albedo * (uLightColor * diffuse * shadow + ambientLight(normal) * occlusion);
