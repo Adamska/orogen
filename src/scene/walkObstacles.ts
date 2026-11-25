@@ -76,7 +76,11 @@ function pushOut(layer: ObstacleLayer, position: PlanarPoint, radius: number): v
   });
 }
 
-export function gatherCanopies(center: PlanarPoint, reach: number): void {
+export function gatherCanopies(
+  center: PlanarPoint,
+  reach: number,
+  groundAt: (x: number, z: number) => number,
+): void {
   canopyCount = 0;
   const layer = scatterObstacles.trees;
   if (layer === null || layer.canopy === null || worldUniforms.uFoliageScale.value < SOLID_FOLIAGE) return;
@@ -85,7 +89,7 @@ export function gatherCanopies(center: PlanarPoint, reach: number): void {
   forNearby(layer, center, reach, (offset) => {
     const girth = Math.hypot(matrices[offset], matrices[offset + 1], matrices[offset + 2]);
     const height = Math.hypot(matrices[offset + 4], matrices[offset + 5], matrices[offset + 6]);
-    const base = matrices[offset + 13];
+    const base = matrices[offset + 13] + groundAt(matrices[offset + 12], matrices[offset + 14]);
     const radius = girth * shape.radius;
     const dx = center.x - matrices[offset + 12];
     const dz = center.z - matrices[offset + 14];

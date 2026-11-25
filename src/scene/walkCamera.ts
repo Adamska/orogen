@@ -86,7 +86,7 @@ export function followCamera(
   pivot.x += (character.x - pivot.x) * planar;
   pivot.z += (character.z - pivot.z) * planar;
   pivot.y += (character.y + PIVOT_HEIGHT - pivot.y) * approach(VERTICAL_RESPONSE, delta);
-  gatherCanopies(pivot, aim.distance + CANOPY_MARGIN);
+  gatherCanopies(pivot, aim.distance + CANOPY_MARGIN, groundAt);
 
   let clear = 0;
   let neededLift = 0;
