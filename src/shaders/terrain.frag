@@ -107,6 +107,14 @@ void main() {
   albedo = mix(albedo, snow, snowMask);
   albedo = mix(albedo, seabed, seabedMask);
 
+  float near = 1.0 - smoothstep(6.0, 48.0, range);
+  if (near > 0.0) {
+    vec3 micro = valueNoiseDerivative(planar * 2.4 + 7.0);
+    float speckle = triplanarGrain(vWorldPosition * 2.1, macroNormal);
+    normal = normalize(normal - vec3(micro.y, 0.0, micro.z) * 0.07 * near * (1.0 - snowMask * 0.7));
+    albedo *= mix(1.0, mix(0.8, 1.14, speckle * 0.6 + micro.x * 0.4), near);
+  }
+
   float soaked = uRain * (1.0 - snowMask) * smoothstep(0.55, 0.9, slope + 0.2);
   albedo *= 1.0 - soaked * 0.32;
   wetness = max(wetness, soaked * 0.8);
