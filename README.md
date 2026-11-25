@@ -17,7 +17,7 @@ Orogen is an interactive 3D procedural terrain and biome engine. It raises seede
 - **Sky and weather.** A raymarched cumulus layer, a day and night time lapse with stars and moonlight, and rain or snow that darkens the sky, wets the rock and lowers the snow line.
 - **Volcanism.** Lava channels and glowing fissures feed HDR bloom, and every terrain morph lights a cooling front across the uplifted crust.
 - **Cinematic output.** Soft PCF shadows, bloom, ACES filmic tone mapping, a camera that flies a crane shot on every terraform, and a photo mode with depth of field, god rays and 4K PNG export.
-- **Hands on.** Free flight with terrain-following collision, a live sculpting brush, a gallery of recent worlds and shareable links that encode the whole world in the URL.
+- **Hands on.** A third-person walk across the terrain, free flight with terrain-following collision, a live sculpting brush, a gallery of recent worlds and shareable links that encode the whole world in the URL.
 - **Procedural audio.** Wind, surf, rain, volcanic rumble and birdsong are synthesized with Web Audio and mixed from the current world.
 
 ## AI terraformer
@@ -99,7 +99,7 @@ cp .env.example .env.local
 
 - Drag to orbit and scroll to zoom. The orbit button toggles the automatic camera drift.
 - The Environment panel adjusts sun, water, haze, foliage and weather, and its Terrain shaping section exposes relief, ridges, warp, valleys, snow line and volcanism.
-- The action row regenerates the seed, toggles orbit and the time lapse, starts free flight (WASD, drag to look, E and Q to climb, Shift to boost), opens the sculpting brush and photo mode, and copies a link to the current world.
+- The action row regenerates the seed, toggles orbit and the time lapse, starts free flight (WASD, drag to look, E and Q to climb, Shift to boost), drops a wanderer onto the terrain for a third-person walk (WASD, drag to look, Shift to run, Space to jump, scroll to zoom, or a touch joystick on phones), opens the sculpting brush and photo mode, and copies a link to the current world.
 - The speaker button in the top right plays the ambient soundscape.
 
 ## License
