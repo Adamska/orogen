@@ -11,6 +11,7 @@ export interface Stance {
   readonly glow: number;
   readonly tilt: number;
   readonly bank: number;
+  readonly lift: number;
 }
 
 const SHADOW_OPACITY = 0.3;
@@ -20,6 +21,7 @@ export function placeWanderer(model: WandererModel, stance: Stance): void {
   const { position } = stance;
   const lift = Math.max(0, position.y - stance.floor);
   model.root.position.copy(position);
+  model.root.position.y += stance.lift;
   model.root.rotation.y = stance.facing;
   model.pivot.rotation.set(stance.tilt, 0, stance.bank);
   model.lantern.emissiveIntensity = stance.glow;

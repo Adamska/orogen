@@ -5,7 +5,7 @@ import { useEffect, useLayoutEffect, useRef } from 'react';
 import { MathUtils, Vector3 } from 'three';
 import { useWorldStore } from '@/store/useWorldStore';
 import { stepFlight, switchMount, takeOff, type Mount } from './characterFlight';
-import { createFlightGear, showFlightGear, type FlightGear } from './flightGear';
+import { publishFlightStatus } from './flightStatus';
 import { ORBIT_TARGET } from './orbitRig';
 import type { TerrainSurface } from './useTerrainSurface';
 import { useLookInput } from './useLookInput';
@@ -14,25 +14,16 @@ import { createWalkInput, readWalkCommand, WALK_BINDINGS } from './walkInput';
 import { createWalker, stepWalker, type WalkCommand, type WalkTerrain, type Walker } from './walkerMotion';
 import { findFooting, groundHeight, groundSlope, walkableLimit, type GroundState } from './walkGround';
 import { resetWalkIntent } from './walkIntent';
-import { animateWanderer, createAnimator, type WandererAnimator } from './wandererAnimator';
-import { createWanderer, loadWanderer, type WandererModel } from './wandererModel';
-import { placeWanderer } from './wandererPlacement';
+import { createFigure, disposeFigure, updateFigure, type WandererFigure } from './wandererFigure';
+import { loadWanderer } from './wandererModel';
 import { worldUniforms } from './worldUniforms';
 
 const WALK_NEAR_PLANE = 0.25;
 const WATER_LENS_MARGIN = 0.3;
-const LANTERN_BASE = 0.4;
-const LANTERN_NIGHT = 7;
 const BASE_FOV = 40;
 const FLIGHT_FOV = 20;
-const FOV_SPEED = 60;
-const VIEW_DISTANCE: Record<Mount, number> = { paraglider: 15, jetpack: 10, wingsuit: 12, broom: 10 };
-
-interface Figure {
-  readonly model: WandererModel;
-  readonly animator: WandererAnimator;
-  readonly gear: FlightGear;
-}
+const FOV_SPEED = 110;
+const VIEW_DISTANCE: Record<Mount, number> = { paraglider: 15, jetpack: 11, wingsuit: 12, broom: 11 };
 
 interface WalkSession {
   readonly walker: Walker;
@@ -40,10 +31,9 @@ interface WalkSession {
   readonly terrain: WalkTerrain;
   readonly lensFloor: (x: number, z: number) => number;
   readonly command: WalkCommand;
-  readonly slope: { x: number; z: number };
   readonly aim: { yaw: number; pitch: number; distance: number };
   fov: number;
-  figure: Figure | null;
+  figure: WandererFigure | null;
 }
 
 export function WalkMode({ surface }: { surface: TerrainSurface }) {
@@ -98,7 +88,6 @@ export function WalkMode({ surface }: { surface: TerrainSurface }) {
       terrain,
       lensFloor: (px, pz) => Math.max(terrain.groundAt(px, pz), terrain.waterHeight + WATER_LENS_MARGIN),
       command: { forward: 0, right: 0, yaw: 0, sprint: false, jump: false, jumpHeld: false, rise: 0, aimPitch: 0 },
-      slope: { x: 0, z: 0 },
       aim: { yaw: 0, pitch: 0, distance: 0 },
       fov: BASE_FOV,
       figure: null,
@@ -108,11 +97,7 @@ export function WalkMode({ surface }: { surface: TerrainSurface }) {
     let cancelled = false;
     loadWanderer()
       .then((gltf) => {
-        if (cancelled) return;
-        const model = createWanderer(gltf);
-        model.root.updateMatrixWorld(true);
-        active.figure = { model, animator: createAnimator(model), gear: createFlightGear(model) };
-        scene.add(model.root, model.shadow);
+        if (!cancelled) active.figure = createFigure(gltf, scene);
       })
       .catch(() => undefined);
 
@@ -121,14 +106,8 @@ export function WalkMode({ surface }: { surface: TerrainSurface }) {
       cancelled = true;
       if (previousNear !== null) swapNearPlane(camera, previousNear);
       setFieldOfView(camera, BASE_FOV);
-      const figure = active.figure;
-      if (figure !== null) {
-        figure.animator.mixer.stopAllAction();
-        figure.animator.mixer.uncacheRoot(figure.model.figure);
-        scene.remove(figure.model.root, figure.model.shadow);
-        figure.gear.dispose();
-        figure.model.dispose();
-      }
+      if (active.figure !== null) disposeFigure(active.figure, scene);
+      publishFlightStatus(null);
       resetWalkIntent();
       session.current = null;
     };
@@ -137,7 +116,7 @@ export function WalkMode({ surface }: { surface: TerrainSurface }) {
   useFrame((three, delta) => {
     const active = session.current;
     if (active === null) return;
-    const { walker, terrain, command, slope, aim } = active;
+    const { walker, terrain, command, aim } = active;
     const step = Math.min(delta, 0.05);
     const field = ground.current;
     field.morph = worldUniforms.uMorph.value;
@@ -159,23 +138,9 @@ export function WalkMode({ surface }: { surface: TerrainSurface }) {
     else stepWalker(walker, command, terrain, step);
 
     const { position, flight } = walker;
-    const figure = active.figure;
-    if (figure !== null) {
-      const floor = terrain.groundAt(position.x, position.z);
-      terrain.slopeAt(position.x, position.z, slope);
-      animateWanderer(figure.animator, walker, step);
-      showFlightGear(figure.gear, flight?.mount ?? null, flight?.thrust ?? 0, three.clock.elapsedTime);
-      placeWanderer(figure.model, {
-        position,
-        facing: walker.facing,
-        floor,
-        slopeX: slope.x,
-        slopeZ: slope.z,
-        dry: floor > terrain.waterHeight - 0.05,
-        glow: LANTERN_BASE + worldUniforms.uNight.value * LANTERN_NIGHT,
-        tilt: flight?.tilt ?? 0,
-        bank: flight?.bank ?? 0,
-      });
+    publishFlightStatus(flight?.mount ?? null);
+    if (active.figure !== null) {
+      updateFigure(active.figure, walker, terrain, worldUniforms.uNight.value, three.clock.elapsedTime, step);
     }
 
     aim.yaw = controls.yaw;

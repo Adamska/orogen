@@ -14,9 +14,13 @@ export interface Flight {
   tilt: number;
   thrust: number;
   launch: number;
+  hover: number;
 }
 
 const HOVER_CLEARANCE = 0.9;
+const TERRAIN_LOOKAHEAD = 0.45;
+const LOOKAHEAD_MARGIN = 2;
+const CLIMB_RESPONSE = 4;
 const ALTITUDE_LIMIT = 1400;
 const SWIM_FLOAT = 1.05;
 const thermals = createNoise2D(7331);
@@ -39,6 +43,7 @@ export function takeOff(walker: Walker, mount: Mount): void {
     tilt: 0,
     thrust: 1,
     launch: launch.assist,
+    hover: 0,
   };
   walker.vertical = Math.max(walker.vertical, launch.vertical);
   walker.grounded = false;
@@ -97,6 +102,14 @@ export function stepFlight(walker: Walker, command: WalkCommand, terrain: WalkTe
     position.y = Math.max(position.y, surface);
     land(walker, afloat);
     return;
+  }
+  if (hovering && command.rise >= 0) {
+    const ahead = terrain.groundAt(
+      position.x + velocity.x * TERRAIN_LOOKAHEAD,
+      position.z + velocity.z * TERRAIN_LOOKAHEAD,
+    );
+    const shortfall = Math.max(ahead, terrain.waterHeight) + LOOKAHEAD_MARGIN - position.y;
+    if (shortfall > 0) walker.vertical = Math.max(walker.vertical, shortfall * CLIMB_RESPONSE);
   }
   if (hovering && position.y < surface + HOVER_CLEARANCE) {
     position.y = surface + HOVER_CLEARANCE;
