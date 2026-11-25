@@ -9,6 +9,7 @@ import {
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
+  PropertyBinding,
   SkinnedMesh,
   TorusGeometry,
   type AnimationClip,
@@ -45,6 +46,12 @@ const OUTFIT = {
 };
 
 let pending: Promise<GLTF> | null = null;
+
+export function findBone(figure: Object3D, name: string): Object3D {
+  const bone = figure.getObjectByName(PropertyBinding.sanitizeNodeName(name));
+  if (bone === undefined) throw new Error(`Missing bone ${name}`);
+  return bone;
+}
 
 export function loadWanderer(): Promise<GLTF> {
   pending ??= new GLTFLoader()
@@ -99,7 +106,7 @@ export function createWanderer(gltf: GLTF): WandererModel {
   });
   figure.updateMatrixWorld(true);
 
-  const bone = (name: string) => figure.getObjectByName(name) ?? figure;
+  const bone = (name: string) => findBone(figure, name);
   const prop = (anchor: string, geometry: BufferGeometry, material: Material, x: number, y: number, z: number) => {
     geometries.push(geometry);
     const mesh = new Mesh(geometry, material);
@@ -117,10 +124,10 @@ export function createWanderer(gltf: GLTF): WandererModel {
   prop('DEF-head', new CylinderGeometry(0.21, 0.22, 0.018, 24), hat, 0, 1.755, 0.015);
   prop('DEF-head', new CylinderGeometry(0.1, 0.118, 0.12, 20), hat, 0, 1.815, 0.01);
   prop('DEF-neck', new TorusGeometry(0.085, 0.034, 8, 18), scarf, 0, 1.475, 0).rotation.x = Math.PI / 2;
-  prop('DEF-spine.003', new BoxGeometry(0.32, 0.4, 0.15, 2, 2, 2), pack, 0, 1.21, -0.2);
-  prop('DEF-spine.003', new CylinderGeometry(0.07, 0.07, 0.4, 12), roll, 0, 1.45, -0.19).rotation.z = Math.PI / 2;
-  prop('DEF-spine.003', new BoxGeometry(0.06, 0.08, 0.06), pack, 0.19, 1.04, -0.24);
-  prop('DEF-spine.003', new IcosahedronGeometry(0.035, 1), lantern, 0.19, 1.04, -0.24).castShadow = false;
+  prop('DEF-spine.003', new BoxGeometry(0.32, 0.4, 0.15, 2, 2, 2), pack, 0, 1.21, -0.175);
+  prop('DEF-spine.003', new CylinderGeometry(0.07, 0.07, 0.4, 12), roll, 0, 1.45, -0.165).rotation.z = Math.PI / 2;
+  prop('DEF-spine.003', new BoxGeometry(0.06, 0.08, 0.06), pack, 0.19, 1.04, -0.215);
+  prop('DEF-spine.003', new IcosahedronGeometry(0.035, 1), lantern, 0.19, 1.04, -0.215).castShadow = false;
 
   const root = new Group();
   const pivot = new Group();

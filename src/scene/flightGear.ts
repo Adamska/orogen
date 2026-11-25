@@ -16,7 +16,7 @@ import {
   type Material,
 } from 'three';
 import type { Mount } from './characterFlight';
-import type { WandererModel } from './wandererModel';
+import { findBone, type WandererModel } from './wandererModel';
 
 export interface FlightGear {
   readonly rigs: Record<Mount, Group>;
@@ -96,9 +96,9 @@ export function createFlightGear(model: WandererModel): FlightGear {
   const flame = keep(new MeshBasicMaterial({ color: '#ffb36b', transparent: true, opacity: 0.85, blending: AdditiveBlending, depthWrite: false }));
   const flames: Mesh[] = [];
   for (const x of [0.1, -0.1]) {
-    const tank = mesh(new CylinderGeometry(0.07, 0.07, 0.42, 14), metal, x, 1.22, -0.33);
-    const nozzle = mesh(new ConeGeometry(0.06, 0.1, 12, 1, true), metal, x, 0.97, -0.33);
-    const plume = mesh(new ConeGeometry(0.055, 0.55, 12, 1, true), flame, x, 0.66, -0.33);
+    const tank = mesh(new CylinderGeometry(0.07, 0.07, 0.42, 14), metal, x, 1.22, -0.3);
+    const nozzle = mesh(new ConeGeometry(0.06, 0.1, 12, 1, true), metal, x, 0.97, -0.3);
+    const plume = mesh(new ConeGeometry(0.055, 0.55, 12, 1, true), flame, x, 0.66, -0.3);
     plume.rotation.x = Math.PI;
     plume.castShadow = false;
     flames.push(plume);
@@ -121,6 +121,8 @@ export function createFlightGear(model: WandererModel): FlightGear {
     rig.visible = false;
     model.figure.add(rig);
   }
+  model.figure.updateMatrixWorld(true);
+  findBone(model.figure, 'DEF-spine.003').attach(rigs.jetpack);
   return {
     rigs,
     flames,
