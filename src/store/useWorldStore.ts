@@ -28,6 +28,7 @@ export interface WorldStore {
   timeLapse: boolean;
   photoMode: boolean;
   flightMode: boolean;
+  walkMode: boolean;
   sculptMode: SculptMode;
   brushRadius: number;
   captureToken: number;
@@ -51,6 +52,7 @@ export interface WorldStore {
   toggleTimeLapse: () => void;
   setPhotoMode: (photoMode: boolean) => void;
   setFlightMode: (flightMode: boolean) => void;
+  setWalkMode: (walkMode: boolean) => void;
   setSculptMode: (sculptMode: SculptMode) => void;
   setBrushRadius: (brushRadius: number) => void;
   requestCapture: () => void;
@@ -67,6 +69,7 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
   timeLapse: false,
   photoMode: false,
   flightMode: false,
+  walkMode: false,
   sculptMode: 'off',
   brushRadius: 70,
   captureToken: 0,
@@ -137,13 +140,29 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
   setAutoOrbit: (autoOrbit) => set({ autoOrbit }),
   toggleTimeLapse: () => set((state) => ({ timeLapse: !state.timeLapse })),
   setPhotoMode: (photoMode) => set({ photoMode, commandOpen: false }),
-  setSculptMode: (sculptMode) => set({ sculptMode, flightMode: false, commandOpen: false }),
+  setSculptMode: (sculptMode) =>
+    set((state) => ({
+      sculptMode,
+      flightMode: false,
+      walkMode: false,
+      commandOpen: false,
+      flightToken: state.flightMode || state.walkMode ? state.flightToken + 1 : state.flightToken,
+    })),
   setBrushRadius: (brushRadius) => set({ brushRadius }),
   setFlightMode: (flightMode) =>
     set((state) => ({
       flightMode,
+      walkMode: false,
       commandOpen: false,
       flightToken: flightMode ? state.flightToken : state.flightToken + 1,
+    })),
+  setWalkMode: (walkMode) =>
+    set((state) => ({
+      walkMode,
+      flightMode: false,
+      sculptMode: 'off',
+      commandOpen: false,
+      flightToken: walkMode ? state.flightToken : state.flightToken + 1,
     })),
   requestCapture: () => set((state) => ({ captureToken: state.captureToken + 1 })),
   setCommandOpen: (commandOpen) => set({ commandOpen }),

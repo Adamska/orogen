@@ -17,12 +17,12 @@ import { PostProcessingStack } from './PostProcessingStack';
 import { TerrainWorld } from './TerrainWorld';
 import { useSceneReady } from './useSceneReady';
 import { useTerrainSurface } from './useTerrainSurface';
+import { WalkMode } from './WalkMode';
 import { WeatherSystem } from './WeatherSystem';
 import { frameStats } from './frameStats';
 import { ORBIT_TARGET } from './orbitRig';
 import { beginDayCycle, endDayCycle } from './dayCycle';
 import { stepWorld, syncWorldTargets, worldRuntime } from './worldRuntime';
-
 
 const ORBIT_BUTTONS = { LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.PAN };
 const SCULPT_BUTTONS = { MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.ROTATE };
@@ -33,6 +33,8 @@ export function WorldScene({ onReady }: { onReady?: () => void }) {
   const autoOrbit = useWorldStore((state) => state.autoOrbit);
   const photoMode = useWorldStore((state) => state.photoMode);
   const flightMode = useWorldStore((state) => state.flightMode);
+  const walkMode = useWorldStore((state) => state.walkMode);
+  const piloted = flightMode || walkMode;
   const sculpting = useWorldStore((state) => state.sculptMode !== 'off');
   const info = useThree((state) => state.gl.info);
 
@@ -72,7 +74,7 @@ export function WorldScene({ onReady }: { onReady?: () => void }) {
       {surface && <BiomeScatter field={surface.field} />}
       <OrbitControls
         makeDefault
-        enabled={!flightMode}
+        enabled={!piloted}
         enablePan={false}
         enableDamping
         dampingFactor={0.06}
@@ -89,8 +91,9 @@ export function WorldScene({ onReady }: { onReady?: () => void }) {
       />
       <WeatherSystem />
       {flightMode && surface && <FlightControls field={surface.field} />}
+      {walkMode && surface && <WalkMode surface={surface} />}
       {sculpting && surface && <SculptTool surface={surface} />}
-      <CinematicDirector enabled={!flightMode} />
+      <CinematicDirector enabled={!piloted} />
       <HistoryCapture />
       <PhotoCapture />
       <PostProcessingStack />
