@@ -1,7 +1,8 @@
 'use client';
 
 import { useWorldStore } from '@/store/useWorldStore';
-import { ControlHint, SPAWN_BINDINGS, WALK_BINDINGS } from './ControlHint';
+import { ControlHint, LOOK_MESSAGE, SPAWN_BINDINGS, WALK_BINDINGS } from './ControlHint';
+import { MountPicker } from './MountPicker';
 import { usePointerLocked } from './usePointerLocked';
 
 export function WalkHint() {
@@ -14,10 +15,13 @@ export function WalkHint() {
     return <ControlHint message="Pick a spot on the terrain to set foot" bindings={SPAWN_BINDINGS} actions={[leave]} />;
   }
   return (
-    <ControlHint
-      pointerMessage={locked ? undefined : 'Click the view to steer with the mouse'}
-      bindings={WALK_BINDINGS}
-      actions={[{ label: 'Relocate', onSelect: () => setWalkStage('choosing') }, leave]}
-    />
+    <>
+      <MountPicker />
+      <ControlHint
+        pointerMessage={locked ? undefined : LOOK_MESSAGE}
+        bindings={WALK_BINDINGS}
+        actions={[{ label: 'Relocate', onSelect: () => setWalkStage('choosing') }, leave]}
+      />
+    </>
   );
 }

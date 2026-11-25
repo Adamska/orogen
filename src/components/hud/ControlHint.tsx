@@ -25,6 +25,9 @@ export const WALK_BINDINGS: readonly Binding[] = [
   ['Mouse', 'look'],
   ['Shift', 'sprint'],
   ['Space', 'jump'],
+  ['F', 'fly'],
+  ['1-4', 'gear'],
+  ['C', 'sink'],
   ['Scroll', 'zoom'],
   ['Esc', 'release cursor'],
 ];

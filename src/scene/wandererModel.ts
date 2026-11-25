@@ -22,6 +22,7 @@ import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js';
 
 export interface WandererModel {
   readonly root: Group;
+  readonly pivot: Group;
   readonly figure: Object3D;
   readonly clips: readonly AnimationClip[];
   readonly lantern: MeshStandardMaterial;
@@ -31,6 +32,7 @@ export interface WandererModel {
 }
 
 const MODEL_URL = '/models/wanderer.glb';
+const PIVOT_HEIGHT = 0.95;
 const LANTERN_COLOR = new Color(1, 0.62, 0.28);
 const OUTFIT = {
   boots: new Color('#3d2c22'),
@@ -121,7 +123,12 @@ export function createWanderer(gltf: GLTF): WandererModel {
   prop('DEF-spine.003', new IcosahedronGeometry(0.035, 1), lantern, 0.19, 1.04, -0.24).castShadow = false;
 
   const root = new Group();
-  root.add(figure);
+  const pivot = new Group();
+  pivot.position.y = PIVOT_HEIGHT;
+  pivot.rotation.order = 'ZXY';
+  figure.position.y = -PIVOT_HEIGHT;
+  pivot.add(figure);
+  root.add(pivot);
 
   const shadowMaterial = new MeshBasicMaterial({
     color: '#000000',
@@ -140,6 +147,7 @@ export function createWanderer(gltf: GLTF): WandererModel {
 
   return {
     root,
+    pivot,
     figure,
     clips: gltf.animations,
     lantern,

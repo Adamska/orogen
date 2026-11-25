@@ -7,7 +7,7 @@ import { sampleField, type FieldSample } from '@/engine/elevationField';
 import { intersectHeightfield } from '@/engine/sculpt';
 import { useWorldStore } from '@/store/useWorldStore';
 import type { TerrainSurface } from './useTerrainSurface';
-import { requestLook } from './useWalkInput';
+import { requestLook } from './useLookInput';
 import { findFooting, walkableLimit, type Footing } from './walkGround';
 import { loadWanderer } from './wandererModel';
 import { worldUniforms } from './worldUniforms';

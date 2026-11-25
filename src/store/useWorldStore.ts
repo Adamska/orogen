@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { TerraformPreset } from '@/ai/presets';
 import { describeTerraform } from '@/ai/directorNotes';
 import { shuffleWorld } from '@/engine/worldShuffle';
+import type { Mount } from '@/scene/characterFlight';
 import type { WorldLink } from './worldLink';
 import {
   DEFAULT_SEED,
@@ -38,6 +39,7 @@ export interface WorldStore {
   flightMode: boolean;
   walkStage: WalkStage;
   walkSpawn: SpawnPoint | null;
+  walkMount: Mount;
   sculptMode: SculptMode;
   brushRadius: number;
   captureToken: number;
@@ -66,6 +68,7 @@ export interface WorldStore {
   setFlightMode: (flightMode: boolean) => void;
   setWalkStage: (walkStage: 'off' | 'choosing') => void;
   beginWalk: (spawn: SpawnPoint) => void;
+  setWalkMount: (walkMount: Mount) => void;
   setSculptMode: (sculptMode: SculptMode) => void;
   setBrushRadius: (brushRadius: number) => void;
   requestCapture: () => void;
@@ -86,6 +89,7 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
   flightMode: false,
   walkStage: 'off',
   walkSpawn: null,
+  walkMount: 'paraglider',
   sculptMode: 'off',
   brushRadius: 70,
   captureToken: 0,
@@ -184,6 +188,7 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
       flightToken: state.flightMode || state.walkStage === 'walking' ? state.flightToken + 1 : state.flightToken,
     })),
   beginWalk: (walkSpawn) => set({ walkStage: 'walking', walkSpawn, flightMode: false, sculptMode: 'off', commandOpen: false }),
+  setWalkMount: (walkMount) => set({ walkMount }),
   requestCapture: () => set((state) => ({ captureToken: state.captureToken + 1 })),
   requestExport: () => set((state) => (state.exporting ? state : { exportToken: state.exportToken + 1, exporting: true })),
   setExporting: (exporting) => set({ exporting }),

@@ -1,4 +1,5 @@
-import { AnimationMixer, LoopOnce, MathUtils, type AnimationAction, type Vector3 } from 'three';
+import { AnimationMixer, LoopOnce, MathUtils, type AnimationAction } from 'three';
+import type { Mount } from './characterFlight';
 import type { Walker } from './walkerMotion';
 import type { WandererModel } from './wandererModel';
 
@@ -16,6 +17,7 @@ export interface WandererAnimator {
   readonly rise: AnimationAction;
   readonly hang: AnimationAction;
   readonly land: AnimationAction;
+  readonly flightPoses: Record<Mount, AnimationAction>;
   readonly weights: Map<AnimationAction, number>;
   readonly targets: Map<AnimationAction, number>;
   phase: number;
@@ -52,6 +54,7 @@ export function createAnimator(model: WandererModel): WandererAnimator {
     return created;
   };
   const idle = action('Idle_Loop');
+  const hang = action('Jump_Loop');
   const strides = STRIDE_CLIPS.map(([name, speed]) => ({ action: action(name), speed }));
   for (const { action: stride } of strides) stride.timeScale = 0;
   const animator: WandererAnimator = {
@@ -61,8 +64,14 @@ export function createAnimator(model: WandererModel): WandererAnimator {
     swimIdle: action('Swim_Idle_Loop'),
     swimForward: action('Swim_Fwd_Loop'),
     rise: once('Jump_Start'),
-    hang: action('Jump_Loop'),
+    hang,
     land: once('Jump_Land'),
+    flightPoses: {
+      paraglider: action('Sitting_Idle_Loop'),
+      jetpack: hang,
+      wingsuit: action('A_TPose'),
+      broom: action('Driving_Loop'),
+    },
     weights: new Map(),
     targets: new Map(),
     phase: 0,
@@ -94,7 +103,7 @@ function strideTargets(animator: WandererAnimator, speed: number, share: number)
 }
 
 export function animateWanderer(animator: WandererAnimator, walker: Walker, delta: number): void {
-  const { targets, weights, rise, land, strides } = animator;
+  const { targets, rise, land, strides } = animator;
   if (walker.jumped) {
     rise.reset();
     rise.time = RISE_OFFSET;
@@ -108,6 +117,11 @@ export function animateWanderer(animator: WandererAnimator, walker: Walker, delt
   animator.landTimer = Math.max(0, animator.landTimer - delta);
 
   targets.clear();
+  if (walker.flight !== null) {
+    targets.set(animator.flightPoses[walker.flight.mount], 1);
+    blendWeights(animator, delta);
+    return;
+  }
   const swim = walker.swim;
   const air = walker.grounded || walker.floating ? 0 : 1 - swim;
   const ground = (1 - swim) * (1 - air);
@@ -132,6 +146,11 @@ export function animateWanderer(animator: WandererAnimator, walker: Walker, delt
   for (const { action } of strides) action.time = animator.phase * action.getClip().duration;
   animator.swimForward.timeScale = MathUtils.clamp(walker.speed / SWIM_STROKE_SPEED, 0.6, 1.6);
 
+  blendWeights(animator, delta);
+}
+
+function blendWeights(animator: WandererAnimator, delta: number): void {
+  const { weights, targets } = animator;
   const blend = 1 - Math.exp(-delta * BLEND_RESPONSE);
   for (const action of new Set([...weights.keys(), ...targets.keys()])) {
     const next = (weights.get(action) ?? 0) + ((targets.get(action) ?? 0) - (weights.get(action) ?? 0)) * blend;
@@ -139,30 +158,4 @@ export function animateWanderer(animator: WandererAnimator, walker: Walker, delt
     action.setEffectiveWeight(next);
   }
   animator.mixer.update(delta);
-}
-
-export interface Stance {
-  readonly position: Vector3;
-  readonly facing: number;
-  readonly floor: number;
-  readonly slopeX: number;
-  readonly slopeZ: number;
-  readonly dry: boolean;
-  readonly glow: number;
-}
-
-const SHADOW_OPACITY = 0.3;
-const SHADOW_FADE_HEIGHT = 4;
-
-export function placeWanderer(model: WandererModel, stance: Stance): void {
-  const { position } = stance;
-  const lift = Math.max(0, position.y - stance.floor);
-  model.root.position.copy(position);
-  model.root.rotation.y = stance.facing;
-  model.lantern.emissiveIntensity = stance.glow;
-  model.shadow.position.set(position.x, stance.floor + 0.04, position.z);
-  model.shadow.rotation.set(-Math.atan(stance.slopeZ), 0, Math.atan(stance.slopeX));
-  model.shadow.scale.setScalar(1 + lift * 0.12);
-  model.shadow.visible = stance.dry;
-  model.shadowMaterial.opacity = SHADOW_OPACITY * MathUtils.clamp(1 - lift / SHADOW_FADE_HEIGHT, 0, 1);
 }

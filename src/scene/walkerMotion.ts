@@ -1,4 +1,5 @@
 import { MathUtils, Vector3 } from 'three';
+import type { Flight } from './characterFlight';
 import { resolveObstacles } from './walkObstacles';
 
 export interface Walker {
@@ -14,6 +15,7 @@ export interface Walker {
   jumpBuffer: number;
   jumped: boolean;
   landing: number;
+  flight: Flight | null;
 }
 
 export interface WalkCommand {
@@ -23,6 +25,8 @@ export interface WalkCommand {
   sprint: boolean;
   jump: boolean;
   jumpHeld: boolean;
+  rise: number;
+  aimPitch: number;
 }
 
 export interface WalkTerrain {
@@ -72,6 +76,7 @@ export function createWalker(position: Vector3, facing: number): Walker {
     jumpBuffer: 0,
     jumped: false,
     landing: 0,
+    flight: null,
   };
 }
 
