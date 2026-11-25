@@ -9,12 +9,15 @@ export interface HintAction {
   readonly onSelect: () => void;
 }
 
+export const LOOK_MESSAGE = 'Click the view to steer with the mouse';
+
 export const FLIGHT_BINDINGS: readonly Binding[] = [
   ['WASD', 'fly'],
-  ['Drag', 'look'],
-  ['E / Q', 'climb'],
+  ['Mouse', 'look'],
+  ['Space / C', 'rise / sink'],
   ['Shift', 'boost'],
-  ['Esc', 'land'],
+  ['Scroll', 'speed'],
+  ['Esc', 'release cursor'],
 ];
 
 export const WALK_BINDINGS: readonly Binding[] = [

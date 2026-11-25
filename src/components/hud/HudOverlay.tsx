@@ -4,12 +4,13 @@ import { useWorldStore } from '@/store/useWorldStore';
 import { CommandBar } from './CommandBar';
 import { DirectorLog } from './DirectorLog';
 import { EnvironmentControls } from './EnvironmentControls';
-import { ControlHint, FLIGHT_BINDINGS } from './ControlHint';
+import { ControlHint, FLIGHT_BINDINGS, LOOK_MESSAGE } from './ControlHint';
 import { PhotoToolbar } from './PhotoToolbar';
 import { SculptPanel } from './SculptPanel';
 import { SoundToggle } from './SoundToggle';
 import { TelemetryBadge } from './TelemetryBadge';
 import { TerraformSweep } from './TerraformSweep';
+import { usePointerLocked } from './usePointerLocked';
 import { WalkHint } from './WalkHint';
 import { WalkJoystick } from './WalkJoystick';
 import { WorldHistory } from './WorldHistory';
@@ -22,6 +23,7 @@ export function HudOverlay() {
   const walkStage = useWorldStore((state) => state.walkStage);
   const setFlightMode = useWorldStore((state) => state.setFlightMode);
   const sculpting = useWorldStore((state) => state.sculptMode !== 'off');
+  const locked = usePointerLocked();
 
   return (
     <div className="pointer-events-none absolute inset-0 z-10 animate-[rise_900ms_ease-out_both]">
@@ -45,14 +47,18 @@ export function HudOverlay() {
             </div>
             <SoundToggle />
           </div>
-          {walkStage === 'walking' && <WalkJoystick />}
-          <div className={`absolute inset-x-4 bottom-20 sm:inset-x-auto sm:bottom-auto sm:right-6 sm:top-1/2 sm:-translate-y-1/2 ${walkStage === 'off' ? '' : 'hidden sm:block'}`}>
+          {(walkStage === 'walking' || flightMode) && <WalkJoystick actionLabel={flightMode ? 'Up' : 'Jump'} />}
+          <div className={`absolute inset-x-4 bottom-20 sm:inset-x-auto sm:bottom-auto sm:right-6 sm:top-1/2 sm:-translate-y-1/2 ${walkStage === 'off' && !flightMode ? '' : 'hidden sm:block'}`}>
             <EnvironmentControls />
           </div>
           <div className="absolute inset-x-0 bottom-5 flex flex-col items-center gap-3 px-4 sm:bottom-7">
             <DirectorLog />
             {flightMode ? (
-              <ControlHint bindings={FLIGHT_BINDINGS} actions={[{ label: 'Land', onSelect: () => setFlightMode(false) }]} />
+              <ControlHint
+                bindings={FLIGHT_BINDINGS}
+                pointerMessage={locked ? undefined : LOOK_MESSAGE}
+                actions={[{ label: 'Land', onSelect: () => setFlightMode(false) }]}
+              />
             ) : walkStage !== 'off' ? (
               <WalkHint />
             ) : sculpting ? (

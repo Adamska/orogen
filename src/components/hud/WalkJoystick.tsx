@@ -5,7 +5,7 @@ import { resetWalkIntent, walkIntent } from '@/scene/walkIntent';
 
 const TRAVEL = 44;
 
-export function WalkJoystick() {
+export function WalkJoystick({ actionLabel }: { actionLabel: string }) {
   const knob = useRef<HTMLDivElement>(null);
   const anchor = useRef<{ id: number; x: number; y: number } | null>(null);
 
@@ -59,7 +59,7 @@ export function WalkJoystick() {
       </div>
       <button
         type="button"
-        aria-label="Jump"
+        aria-label={actionLabel}
         onPointerDown={() => {
           walkIntent.jump = true;
           walkIntent.jumpHeld = true;
@@ -72,7 +72,7 @@ export function WalkJoystick() {
         }}
         className="pointer-events-auto size-16 touch-none rounded-full border border-white/20 bg-slate-950/30 text-[11px] font-medium uppercase tracking-[0.18em] text-white/80 backdrop-blur-xl active:bg-white/20"
       >
-        Jump
+        {actionLabel}
       </button>
     </div>
   );

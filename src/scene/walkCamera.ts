@@ -127,3 +127,9 @@ export function swapNearPlane(camera: Camera, near: number): number | null {
   camera.updateProjectionMatrix();
   return previous;
 }
+
+export function setFieldOfView(camera: Camera, fov: number): void {
+  if (!(camera instanceof PerspectiveCamera) || Math.abs(camera.fov - fov) < 0.01) return;
+  camera.fov = fov;
+  camera.updateProjectionMatrix();
+}
