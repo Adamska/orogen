@@ -4,7 +4,7 @@ Orogen is an interactive 3D procedural terrain and biome engine. It raises seede
 
 **Live demo:** [orogen-six.vercel.app](https://orogen-six.vercel.app)
 
-![Orogen rendering the default Nordic fjord world at golden hour](https://github.com/user-attachments/assets/3630f0ea-f5e0-4a2e-b0b7-c189e64b6b47)
+![Orogen rendering the default Nordic fjord world at golden hour](https://github.com/user-attachments/assets/9c12ad3a-d654-4eda-9d7d-ee624c6f989b)
 
 
 ## Highlights
