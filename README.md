@@ -17,7 +17,7 @@ Orogen is an interactive 3D procedural terrain and biome engine. It raises seede
 - **Sky and weather.** A raymarched cumulus layer, a day and night time lapse with stars and moonlight, and rain or snow that darkens the sky, wets the rock and lowers the snow line.
 - **Volcanism.** Lava channels and glowing fissures feed HDR bloom, and every terrain morph lights a cooling front across the uplifted crust.
 - **Cinematic output.** Soft PCF shadows, bloom, ACES filmic tone mapping, a camera that flies a crane shot on every terraform, and a photo mode with depth of field, god rays and 4K PNG export.
-- **Hands on.** A third-person walk with a motion-captured hiker on any spot you pick, free flight with terrain-following collision, a live sculpting brush, a gallery of recent worlds and shareable links that encode the whole world in the URL.
+- **Hands on.** A third-person walk with a motion-captured hiker on any spot you pick, who can take to the air on a paraglider riding ridge lift and thermals, a jetpack, a wingsuit or a broom, free flight with terrain-following collision, a live sculpting brush, a gallery of recent worlds and shareable links that encode the whole world in the URL.
 - **3D export.** One click downloads the current world as a binary glTF: an adaptive RTIN terrain mesh within 0.6 m of the heightfield, a baked 2048 px albedo texture, water, and GPU-instanced vegetation and boulders, ready for Blender, Unity, Unreal, Godot or three.js.
 - **Procedural audio.** Wind, surf, rain, volcanic rumble and birdsong are synthesized with Web Audio and mixed from the current world.
 
@@ -101,8 +101,8 @@ cp .env.example .env.local
 
 - Drag to orbit and scroll to zoom. The orbit button toggles the automatic camera drift.
 - The Environment panel adjusts sun, water, haze, foliage and weather, and its Terrain shaping section exposes relief, ridges, warp, valleys, snow line and volcanism.
-- New seed regenerates the terrain and Export downloads the current world as a `.glb` model.
-- The action row toggles orbit and the time lapse, starts free flight (WASD, drag to look, E and Q to climb, Shift to boost), lets you pick a spot on the terrain for a third-person walk (WASD, mouse look with pointer lock, Shift to sprint, Space to jump, scroll to zoom, Relocate to pick a new spot, or a touch joystick on phones), opens the sculpting brush and photo mode, and copies a link to the current world.
+- New seed regenerates the terrain, Export downloads the current world as a `.glb` model, and the dice in the Environment header shuffles sun, water, haze, foliage, weather and terrain shaping at once.
+- The action row toggles orbit and the time lapse, starts free flight (WASD, mouse look with pointer lock, Space and C to climb and sink, Shift to boost, scroll to set the cruise speed), lets you pick a spot on the terrain for a third-person walk (WASD, mouse look with pointer lock, Shift to sprint, Space to jump, F to take off or land, 1 to 4 to pick the paraglider, jetpack, wingsuit or broom, Space and C to climb and sink in the air, scroll to zoom, Relocate to pick a new spot, or a touch joystick on phones), opens the sculpting brush and photo mode, and copies a link to the current world.
 - The speaker button in the top right plays the ambient soundscape.
 
 ## License
