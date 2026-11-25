@@ -99,9 +99,11 @@ cp .env.example .env.local
 
 - Drag to orbit and scroll to zoom. The orbit button toggles the automatic camera drift.
 - The Environment panel adjusts sun, water, haze, foliage and weather, and its Terrain shaping section exposes relief, ridges, warp, valleys, snow line and volcanism.
-- The action row regenerates the seed, toggles orbit and the time lapse, starts free flight (WASD, drag to look, E and Q to climb, Shift to boost), drops a wanderer onto the terrain for a third-person walk (WASD, drag to look, Shift to run, Space to jump, scroll to zoom, or a touch joystick on phones), opens the sculpting brush and photo mode, and copies a link to the current world.
+- The action row regenerates the seed, toggles orbit and the time lapse, starts free flight (WASD, drag to look, E and Q to climb, Shift to boost), lets you pick a spot on the terrain for a third-person walk (WASD, mouse look with pointer lock, Shift to sprint, Space to jump, scroll to zoom, Relocate to pick a new spot, or a touch joystick on phones), opens the sculpting brush and photo mode, and copies a link to the current world.
 - The speaker button in the top right plays the ambient soundscape.
 
 ## License
 
 Released under the [MIT License](LICENSE).
+
+The wanderer character and its animations come from the [Universal Animation Library](https://quaternius.itch.io/universal-animation-library) by Quaternius, released under CC0 1.0.
