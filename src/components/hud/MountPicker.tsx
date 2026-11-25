@@ -15,7 +15,7 @@ const LABELS: Record<Mount, string> = {
 const CHIP =
   'rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors focus-visible:outline-2 focus-visible:outline-white/70';
 
-export function MountPicker() {
+export function MountPicker({ flying }: { flying: boolean }) {
   const walkMount = useWorldStore((state) => state.walkMount);
   const setWalkMount = useWorldStore((state) => state.setWalkMount);
 
@@ -35,13 +35,13 @@ export function MountPicker() {
       ))}
       <button
         type="button"
-        title="Take off or land (F)"
+        title={flying ? 'Let go and land (F)' : 'Take off (F)'}
         onClick={() => {
           walkIntent.toggleFlight = true;
         }}
         className={`${CHIP} border border-white/25 text-white hover:bg-white/15`}
       >
-        Fly
+        {flying ? 'Land' : 'Fly'}
       </button>
     </GlassPanel>
   );

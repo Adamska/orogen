@@ -2,7 +2,7 @@
 
 import { GlassPanel } from './GlassPanel';
 
-type Binding = readonly [key: string, action: string];
+export type Binding = readonly [key: string, action: string];
 
 export interface HintAction {
   readonly label: string;
@@ -17,18 +17,6 @@ export const FLIGHT_BINDINGS: readonly Binding[] = [
   ['Space / C', 'rise / sink'],
   ['Shift', 'boost'],
   ['Scroll', 'speed'],
-  ['Esc', 'release cursor'],
-];
-
-export const WALK_BINDINGS: readonly Binding[] = [
-  ['WASD', 'move'],
-  ['Mouse', 'look'],
-  ['Shift', 'sprint'],
-  ['Space', 'jump'],
-  ['F', 'fly'],
-  ['1-4', 'gear'],
-  ['C', 'sink'],
-  ['Scroll', 'zoom'],
   ['Esc', 'release cursor'],
 ];
 
