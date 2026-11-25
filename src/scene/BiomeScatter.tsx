@@ -11,9 +11,15 @@ import { useWorldStore } from '@/store/useWorldStore';
 import { createDepthMaterial, createLitMaterial } from './materials';
 import { createBoulderGeometry, createTreeGeometry } from './scatterGeometry';
 import { ScatterTiles } from './ScatterTiles';
-import { scatterObstacles } from './walkObstacles';
+import { scatterObstacles, type CanopyShape } from './walkObstacles';
 
 const TRUNK_RADIUS: Record<VegetationKind, number> = { conifer: 0.045, broadleaf: 0.05, palm: 0.034, shrub: 0 };
+const CANOPY: Record<VegetationKind, CanopyShape | null> = {
+  conifer: { radius: 0.24, bottom: 0.18 },
+  broadleaf: { radius: 0.34, bottom: 0.36 },
+  palm: { radius: 0.42, bottom: 0.74 },
+  shrub: null,
+};
 const BOULDER_RADIUS = 0.8;
 
 export function BiomeScatter({ field }: { field: ElevationField }) {
@@ -39,9 +45,9 @@ export function BiomeScatter({ field }: { field: ElevationField }) {
   useEffect(() => {
     const trunk = TRUNK_RADIUS[vegetation];
     scatterObstacles.trees =
-      layout === null || trunk === 0 ? null : { layout: layout.trees, density: treeDensity, radiusRatio: trunk };
+      layout === null || trunk === 0 ? null : { layout: layout.trees, density: treeDensity, radiusRatio: trunk, canopy: CANOPY[vegetation] };
     scatterObstacles.boulders =
-      layout === null ? null : { layout: layout.boulders, density: boulderDensity, radiusRatio: BOULDER_RADIUS };
+      layout === null ? null : { layout: layout.boulders, density: boulderDensity, radiusRatio: BOULDER_RADIUS, canopy: null };
     return () => {
       scatterObstacles.trees = null;
       scatterObstacles.boulders = null;

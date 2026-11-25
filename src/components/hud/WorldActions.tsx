@@ -14,8 +14,8 @@ export function WorldActions() {
   const setPhotoMode = useWorldStore((state) => state.setPhotoMode);
   const flightMode = useWorldStore((state) => state.flightMode);
   const setFlightMode = useWorldStore((state) => state.setFlightMode);
-  const walkMode = useWorldStore((state) => state.walkMode);
-  const setWalkMode = useWorldStore((state) => state.setWalkMode);
+  const walkStage = useWorldStore((state) => state.walkStage);
+  const setWalkStage = useWorldStore((state) => state.setWalkStage);
   const sculptMode = useWorldStore((state) => state.sculptMode);
   const setSculptMode = useWorldStore((state) => state.setSculptMode);
 
@@ -39,7 +39,11 @@ export function WorldActions() {
         <ToggleButton label="Free flight" pressed={flightMode} onToggle={() => setFlightMode(!flightMode)}>
           <FlightIcon />
         </ToggleButton>
-        <ToggleButton label="Walk the terrain" pressed={walkMode} onToggle={() => setWalkMode(!walkMode)}>
+        <ToggleButton
+          label="Walk the terrain"
+          pressed={walkStage !== 'off'}
+          onToggle={() => setWalkStage(walkStage === 'off' ? 'choosing' : 'off')}
+        >
           <WalkIcon />
         </ToggleButton>
         <ToggleButton

@@ -62,6 +62,13 @@ export function WalkJoystick() {
         aria-label="Jump"
         onPointerDown={() => {
           walkIntent.jump = true;
+          walkIntent.jumpHeld = true;
+        }}
+        onPointerUp={() => {
+          walkIntent.jumpHeld = false;
+        }}
+        onPointerCancel={() => {
+          walkIntent.jumpHeld = false;
         }}
         className="pointer-events-auto size-16 touch-none rounded-full border border-white/20 bg-slate-950/30 text-[11px] font-medium uppercase tracking-[0.18em] text-white/80 backdrop-blur-xl active:bg-white/20"
       >

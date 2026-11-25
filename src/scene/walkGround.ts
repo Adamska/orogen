@@ -69,8 +69,9 @@ export function findFooting(
   waterHeight: number,
   limit: number,
   origin: Footing,
+  rings = FOOTING_RINGS,
 ): Footing {
-  for (let ring = 0; ring <= FOOTING_RINGS; ring += 1) {
+  for (let ring = 0; ring <= rings; ring += 1) {
     const radius = ring * FOOTING_RING_SPACING;
     const steps = ring === 0 ? 1 : ring * 6;
     for (let step = 0; step < steps; step += 1) {

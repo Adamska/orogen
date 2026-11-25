@@ -13,6 +13,7 @@ import { FlightControls } from './FlightControls';
 import { HistoryCapture } from './HistoryCapture';
 import { PhotoCapture } from './PhotoCapture';
 import { SculptTool } from './SculptTool';
+import { SpawnPicker } from './SpawnPicker';
 import { PostProcessingStack } from './PostProcessingStack';
 import { TerrainWorld } from './TerrainWorld';
 import { useSceneReady } from './useSceneReady';
@@ -33,8 +34,8 @@ export function WorldScene({ onReady }: { onReady?: () => void }) {
   const autoOrbit = useWorldStore((state) => state.autoOrbit);
   const photoMode = useWorldStore((state) => state.photoMode);
   const flightMode = useWorldStore((state) => state.flightMode);
-  const walkMode = useWorldStore((state) => state.walkMode);
-  const piloted = flightMode || walkMode;
+  const walkStage = useWorldStore((state) => state.walkStage);
+  const piloted = flightMode || walkStage === 'walking';
   const sculpting = useWorldStore((state) => state.sculptMode !== 'off');
   const info = useThree((state) => state.gl.info);
 
@@ -80,7 +81,7 @@ export function WorldScene({ onReady }: { onReady?: () => void }) {
         dampingFactor={0.06}
         rotateSpeed={0.55}
         zoomSpeed={0.7}
-        autoRotate={autoOrbit && !photoMode && !sculpting}
+        autoRotate={autoOrbit && !photoMode && !sculpting && walkStage === 'off'}
         mouseButtons={sculpting ? SCULPT_BUTTONS : ORBIT_BUTTONS}
         autoRotateSpeed={0.32}
         minDistance={220}
@@ -91,7 +92,8 @@ export function WorldScene({ onReady }: { onReady?: () => void }) {
       />
       <WeatherSystem />
       {flightMode && surface && <FlightControls field={surface.field} />}
-      {walkMode && surface && <WalkMode surface={surface} />}
+      {walkStage === 'choosing' && surface && <SpawnPicker surface={surface} />}
+      {walkStage === 'walking' && surface && <WalkMode surface={surface} />}
       {sculpting && surface && <SculptTool surface={surface} />}
       <CinematicDirector enabled={!piloted} />
       <HistoryCapture />

@@ -13,6 +13,13 @@ import {
 
 export type SculptMode = 'off' | 'raise' | 'lower';
 
+export type WalkStage = 'off' | 'choosing' | 'walking';
+
+export interface SpawnPoint {
+  readonly x: number;
+  readonly z: number;
+}
+
 export type WorldOrigin = 'preset' | 'model' | 'local' | 'shared';
 
 export interface DirectorLog {
@@ -28,7 +35,8 @@ export interface WorldStore {
   timeLapse: boolean;
   photoMode: boolean;
   flightMode: boolean;
-  walkMode: boolean;
+  walkStage: WalkStage;
+  walkSpawn: SpawnPoint | null;
   sculptMode: SculptMode;
   brushRadius: number;
   captureToken: number;
@@ -52,7 +60,8 @@ export interface WorldStore {
   toggleTimeLapse: () => void;
   setPhotoMode: (photoMode: boolean) => void;
   setFlightMode: (flightMode: boolean) => void;
-  setWalkMode: (walkMode: boolean) => void;
+  setWalkStage: (walkStage: 'off' | 'choosing') => void;
+  beginWalk: (spawn: SpawnPoint) => void;
   setSculptMode: (sculptMode: SculptMode) => void;
   setBrushRadius: (brushRadius: number) => void;
   requestCapture: () => void;
@@ -69,7 +78,8 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
   timeLapse: false,
   photoMode: false,
   flightMode: false,
-  walkMode: false,
+  walkStage: 'off',
+  walkSpawn: null,
   sculptMode: 'off',
   brushRadius: 70,
   captureToken: 0,
@@ -144,26 +154,27 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
     set((state) => ({
       sculptMode,
       flightMode: false,
-      walkMode: false,
+      walkStage: 'off',
       commandOpen: false,
-      flightToken: state.flightMode || state.walkMode ? state.flightToken + 1 : state.flightToken,
+      flightToken: state.flightMode || state.walkStage === 'walking' ? state.flightToken + 1 : state.flightToken,
     })),
   setBrushRadius: (brushRadius) => set({ brushRadius }),
   setFlightMode: (flightMode) =>
     set((state) => ({
       flightMode,
-      walkMode: false,
+      walkStage: 'off',
       commandOpen: false,
       flightToken: flightMode ? state.flightToken : state.flightToken + 1,
     })),
-  setWalkMode: (walkMode) =>
+  setWalkStage: (walkStage) =>
     set((state) => ({
-      walkMode,
+      walkStage,
       flightMode: false,
       sculptMode: 'off',
       commandOpen: false,
-      flightToken: walkMode ? state.flightToken : state.flightToken + 1,
+      flightToken: state.flightMode || state.walkStage === 'walking' ? state.flightToken + 1 : state.flightToken,
     })),
+  beginWalk: (walkSpawn) => set({ walkStage: 'walking', walkSpawn, flightMode: false, sculptMode: 'off', commandOpen: false }),
   requestCapture: () => set((state) => ({ captureToken: state.captureToken + 1 })),
   setCommandOpen: (commandOpen) => set({ commandOpen }),
 }));

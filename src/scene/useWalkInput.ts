@@ -10,28 +10,44 @@ export interface WalkInput {
   jump: boolean;
 }
 
-export const WALK_PITCH_RANGE = [-0.35, 1.25] as const;
-export const WALK_DISTANCE_RANGE = [2.6, 18] as const;
+export const WALK_PITCH_RANGE = [-0.5, 1.3] as const;
+export const WALK_DISTANCE_RANGE = [2.2, 16] as const;
 
-const LOOK_SENSITIVITY = 0.0042;
+const LOCKED_SENSITIVITY = 0.0023;
+const DRAG_SENSITIVITY = 0.0045;
 const ZOOM_SENSITIVITY = 0.0011;
+const ESCAPE_GRACE_MS = 300;
 
 const editable = (target: EventTarget | null) =>
   target instanceof HTMLElement && (target.isContentEditable || ['INPUT', 'TEXTAREA'].includes(target.tagName));
 
 export function createWalkInput(): WalkInput {
-  return { keys: new Set(), yaw: 0, pitch: 0.16, distance: 6.5, jump: false };
+  return { keys: new Set(), yaw: 0, pitch: 0.2, distance: 5.5, jump: false };
+}
+
+export function requestLook(canvas: HTMLCanvasElement): void {
+  if (!window.matchMedia('(pointer: fine)').matches || document.pointerLockElement === canvas) return;
+  Promise.resolve()
+    .then(() => canvas.requestPointerLock())
+    .catch(() => undefined);
 }
 
 export function useWalkInput(canvas: HTMLCanvasElement, input: RefObject<WalkInput>): void {
   useEffect(() => {
     const state = input.current;
     let pointer: { id: number; x: number; y: number } | null = null;
+    let unlockedAt = 0;
+    const locked = () => document.pointerLockElement === canvas;
+    const look = (dx: number, dy: number, sensitivity: number) => {
+      state.yaw -= dx * sensitivity;
+      state.pitch = MathUtils.clamp(state.pitch + dy * sensitivity, WALK_PITCH_RANGE[0], WALK_PITCH_RANGE[1]);
+    };
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (editable(event.target)) return;
-      if (event.code === 'Escape' && !useWorldStore.getState().photoMode) {
-        useWorldStore.getState().setWalkMode(false);
+      if (event.code === 'Escape') {
+        const store = useWorldStore.getState();
+        if (!locked() && !store.photoMode && performance.now() - unlockedAt > ESCAPE_GRACE_MS) store.setWalkStage('off');
         return;
       }
       if (event.code === 'Space') {
@@ -45,17 +61,19 @@ export function useWalkInput(canvas: HTMLCanvasElement, input: RefObject<WalkInp
       state.keys.clear();
       pointer = null;
     };
+    const onLockChange = () => {
+      if (!locked()) unlockedAt = performance.now();
+    };
+    const onMouseMove = (event: MouseEvent) => {
+      if (locked()) look(event.movementX, event.movementY, LOCKED_SENSITIVITY);
+    };
     const onPointerDown = (event: PointerEvent) => {
-      if (pointer === null) pointer = { id: event.pointerId, x: event.clientX, y: event.clientY };
+      if (event.pointerType === 'mouse' && event.button === 0) requestLook(canvas);
+      if (pointer === null && !locked()) pointer = { id: event.pointerId, x: event.clientX, y: event.clientY };
     };
     const onPointerMove = (event: PointerEvent) => {
-      if (pointer === null || event.pointerId !== pointer.id) return;
-      state.yaw -= (event.clientX - pointer.x) * LOOK_SENSITIVITY;
-      state.pitch = MathUtils.clamp(
-        state.pitch + (event.clientY - pointer.y) * LOOK_SENSITIVITY,
-        WALK_PITCH_RANGE[0],
-        WALK_PITCH_RANGE[1],
-      );
+      if (pointer === null || event.pointerId !== pointer.id || locked()) return;
+      look(event.clientX - pointer.x, event.clientY - pointer.y, DRAG_SENSITIVITY);
       pointer.x = event.clientX;
       pointer.y = event.clientY;
     };
@@ -75,6 +93,8 @@ export function useWalkInput(canvas: HTMLCanvasElement, input: RefObject<WalkInp
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
     window.addEventListener('blur', onBlur);
+    document.addEventListener('pointerlockchange', onLockChange);
+    document.addEventListener('mousemove', onMouseMove);
     canvas.addEventListener('pointerdown', onPointerDown);
     window.addEventListener('pointermove', onPointerMove);
     window.addEventListener('pointerup', onPointerUp);
@@ -85,6 +105,8 @@ export function useWalkInput(canvas: HTMLCanvasElement, input: RefObject<WalkInp
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
       window.removeEventListener('blur', onBlur);
+      document.removeEventListener('pointerlockchange', onLockChange);
+      document.removeEventListener('mousemove', onMouseMove);
       canvas.removeEventListener('pointerdown', onPointerDown);
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', onPointerUp);
@@ -92,6 +114,7 @@ export function useWalkInput(canvas: HTMLCanvasElement, input: RefObject<WalkInp
       canvas.removeEventListener('wheel', onWheel);
       canvas.removeEventListener('contextmenu', onContextMenu);
       state.keys.clear();
+      if (locked()) document.exitPointerLock();
     };
   }, [canvas, input]);
 }
